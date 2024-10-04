@@ -39,18 +39,15 @@ const updateLabels = () => {
     );
 
     if (shape === "rectangle") {
-        lengthLabel.textContent = "Długość boku (mm):";
-        outerDiameterLabel.textContent = "Fi zewnętrzne (mm):";
-    } else if (shape === "circle") {
-        lengthLabel.textContent = "Fi zewnętrzne (mm):";
-        outerDiameterLabel.textContent = "Fi wewnętrzne (mm, opcjonalnie):";
+        lengthLabel.textContent = "Długość boku A (mm):";
+        outerDiameterLabel.textContent = "Długość boku B (mm):";
     }
 };
 
+// Funkcja do obliczeń dla czworokąta
 const calculate = () => {
-    const shape = document.getElementById("shape").value;
     const thickness = parseInt(document.getElementById("thickness").value);
-    const multiplier = getThicknessMultiplier(thickness);
+    const multiplier = getThicknessMultiplier(thickness); // czas z grubości blachy
     let result;
 
     if (!multiplier) {
@@ -59,31 +56,19 @@ const calculate = () => {
         return;
     }
 
-    if (shape === "rectangle") {
-        const length =
-            parseFloat(document.getElementById("length").value) / 1000; // Przeliczenie na metry
-        const width = parseFloat(document.getElementById("width").value) / 1000; // Przeliczenie na metry
-        if (!isNaN(length) && !isNaN(width)) {
-            result = (length + width) * 2 * multiplier; // Obliczenie czasu palenia w godzinach
-        }
-    } else if (shape === "circle") {
-        const outerDiameter =
-            parseFloat(document.getElementById("outerDiameter").value) / 1000; // Przeliczenie na metry
-        const innerDiameter =
-            parseFloat(document.getElementById("innerDiameter").value) / 1000; // Przeliczenie na metry
+    const length = parseFloat(document.getElementById("length").value) / 1000; // Przeliczenie na metry
+    const width =
+        parseFloat(document.getElementById("outerDiameter").value) / 1000; // Przeliczenie na metry
 
-        if (!isNaN(outerDiameter)) {
-            if (isNaN(innerDiameter)) {
-                result = outerDiameter * Math.PI * multiplier; // Jeśli fi wewnętrzne nie jest podane
-            } else {
-                result = (outerDiameter + innerDiameter) * Math.PI * multiplier; // Obliczenie dla obu fi
-            }
-        }
+    if (!isNaN(length) && !isNaN(width)) {
+        result = (length + width) * 2 * multiplier; // Obliczenie czasu palenia w godzinach
+        document.getElementById(
+            "result"
+        ).textContent = `Czas palenia blachy: ${result.toFixed(2)} h`;
+    } else {
+        document.getElementById("result").textContent =
+            "Proszę podać wszystkie dane dla czworokąta.";
     }
-
-    document.getElementById("result").textContent = result
-        ? `Czas palenia blachy: ${result.toFixed(2)} h`
-        : "Proszę podać wszystkie dane.";
 };
 
 // Obsługa zmiany kształtu
@@ -108,9 +93,7 @@ document.getElementById("clear").addEventListener("click", function () {
 const clearInputs = () => {
     document.getElementById("thickness").value = "";
     document.getElementById("length").value = "";
-    document.getElementById("width").value = "";
     document.getElementById("outerDiameter").value = "";
-    document.getElementById("innerDiameter").value = "";
     document.getElementById("result").textContent = "";
 };
 
