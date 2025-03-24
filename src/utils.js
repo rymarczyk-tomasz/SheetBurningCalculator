@@ -1,9 +1,10 @@
 export const getThicknessMultiplier = (thickness) => {
-    if (thickness >= 1 && thickness < 4) return 0.05;
-    if (thickness >= 4 && thickness < 12) return 0.06;
-    if (thickness >= 12 && thickness < 18) return 0.08;
-    if (thickness >= 18 && thickness < 22) return 0.08;
-    if (thickness >= 22 && thickness < 30) return 0.09;
+    if (thickness >= 1 && thickness < 3) return 0.007;
+    if (thickness >= 3 && thickness < 4) return 0.01;
+    if (thickness >= 4 && thickness < 5) return 0.011;
+    if (thickness >= 5 && thickness < 10) return 0.014;
+    if (thickness >= 10 && thickness < 25) return 0.02;
+    if (thickness >= 25 && thickness < 30) return 0.028;
     if (thickness >= 30 && thickness < 35) return 0.1;
     if (thickness >= 35 && thickness < 45) return 0.11;
     if (thickness >= 45 && thickness < 50) return 0.12;
