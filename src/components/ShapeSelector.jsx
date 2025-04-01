@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 
 const ShapeSelector = ({ shape, setShape }) => {
@@ -10,6 +9,7 @@ const ShapeSelector = ({ shape, setShape }) => {
                 value={shape}
                 onChange={(e) => setShape(e.target.value)}
             >
+                <option value="totalLength">Całkowita długość boków</option>
                 <option value="rectangle">Czworokąt</option>
                 <option value="circle">Okrąg / Pierścień</option>
                 <option value="semicircle">Półpierścień</option>

@@ -7,6 +7,7 @@ import { getThicknessMultiplier } from "./utils";
 import { calculateRectangle } from "./calculateRectangle";
 import { calculateCircle } from "./calculateCircle";
 import { calculateSemiCircle } from "./calculateSemiCircle";
+import { calculateTotalLength } from "./calculateTotalLength";
 
 function App() {
     const [shape, setShape] = useState("rectangle");
@@ -15,6 +16,7 @@ function App() {
     const [innerDiameter, setInnerDiameter] = useState("");
     const [outerDiameter, setOuterDiameter] = useState("");
     const [thickness, setThickness] = useState("");
+    const [totalLength, setTotalLength] = useState("");
     const [result, setResult] = useState("");
 
     useEffect(() => {
@@ -44,6 +46,7 @@ function App() {
         setOuterDiameter("");
         setInnerDiameter("");
         setThickness("");
+        setTotalLength("");
         setResult("");
     };
 
@@ -74,6 +77,11 @@ function App() {
                 calculatedResult = calculateSemiCircle(
                     outerDiameter,
                     innerDiameter,
+                    multiplier
+                );
+            } else if (shape === "totalLength") {
+                calculatedResult = calculateTotalLength(
+                    totalLength,
                     multiplier
                 );
             }
@@ -135,6 +143,15 @@ function App() {
                         placeholder="Wpisz wymiar w mm"
                     />
                 </>
+            )}
+            {shape === "totalLength" && (
+                <InputField
+                    id="totalLength"
+                    label="Całkowita długość boków (mm):"
+                    value={totalLength}
+                    onChange={(e) => setTotalLength(e.target.value)}
+                    placeholder="Wpisz całkowitą długość w mm"
+                />
             )}
             <InputField
                 id="thickness"
