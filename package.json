@@ -3,18 +3,20 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/rymarczyk-tomasz/SheetBurningCalculator",
+  "homepage": "https://rymarczyk-tomasz.github.io/SheetBurningCalculator/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "cp dist/index.html dist/404.html",
     "lint": "eslint .",
     "preview": "vite preview",
-    "predeploy": "npm run build",
+    "predeploy": "npm run build && npm run postbuild",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.27.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
