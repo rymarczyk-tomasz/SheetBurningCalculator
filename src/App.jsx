@@ -106,7 +106,7 @@ function App() {
 
     return (
         <div className="container" onKeyPress={handleKeyPress}>
-            <h1>Kalkulator Palenia Blach</h1>
+            <h1>Kalkulator Palenia</h1>
             <ShapeSelector shape={shape} setShape={setShape} />
             {shape === "rectangle" && (
                 <>
