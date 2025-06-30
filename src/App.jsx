@@ -28,6 +28,9 @@ function App() {
     const [thickness, setThickness] = useState("");
     const [totalLength, setTotalLength] = useState("");
     const [result, setResult] = useState("");
+    const [rodDiameter, setRodDiameter] = useState("");
+    const [pipeOuterDiameter, setPipeOuterDiameter] = useState(""); // Dodaj do stanu
+    const [pipeInnerDiameter, setPipeInnerDiameter] = useState(""); // Dodaj do stanu
 
     useEffect(() => {
         clearFields();
@@ -50,6 +53,14 @@ function App() {
         };
     }, []);
 
+    useEffect(() => {
+        if (process === "saw") {
+            setShape("rod");
+        } else if (process === "burning") {
+            setShape("rectangle");
+        }
+    }, [process]);
+
     const clearFields = () => {
         setLength("");
         setWidth("");
@@ -58,6 +69,9 @@ function App() {
         setThickness("");
         setTotalLength("");
         setResult("");
+        setRodDiameter(""); // Czyść fi pręta
+        setPipeOuterDiameter(""); // Czyść fi zewnętrzne rury
+        setPipeInnerDiameter(""); // Czyść fi wewnętrzne rury
     };
 
     const handleCalculate = () => {
@@ -140,7 +154,11 @@ function App() {
             <ProcessSelector process={process} setProcess={setProcess} />
             {process === "burning" && (
                 <>
-                    <ShapeSelector shape={shape} setShape={setShape} />
+                    <ShapeSelector
+                        shape={shape}
+                        setShape={setShape}
+                        isCutting={false}
+                    />
                     {shape === "rectangle" && (
                         <>
                             <InputField
@@ -202,7 +220,38 @@ function App() {
                     <Result result={result} />
                 </>
             )}
-            {process === "saw" && <Saw />}
+            {process === "saw" && (
+                <>
+                    <ShapeSelector
+                        shape={shape}
+                        setShape={setShape}
+                        isCutting={true}
+                    />
+                    {shape === "rod" && (
+                        <InputField
+                            id="rodDiameter"
+                            label="Fi pręta (mm):"
+                            value={rodDiameter}
+                            onChange={(e) => setRodDiameter(e.target.value)}
+                            placeholder="Wpisz średnicę pręta w mm"
+                        />
+                    )}
+                    {shape === "pipe" && (
+                        <>
+                            <InputField
+                                id="pipeOuterDiameter"
+                                label="Fi zewnętrzne rury (mm):"
+                                value={pipeOuterDiameter}
+                                onChange={(e) => setPipeOuterDiameter(e.target.value)}
+                                placeholder="Wpisz fi zewnętrzne rury w mm"
+                            />
+                        </>
+                    )}
+                    <button onClick={handleCalculate}>Oblicz</button>
+                    <button onClick={handleClear}>Wyczyść</button>
+                    <Result result={result} />
+                </>
+            )}
             {process === "waterjet" && <Waterjet />}
             {process === "hardening" && <Hardening />}
             {process === "nitriding" && <Nitriding />}
