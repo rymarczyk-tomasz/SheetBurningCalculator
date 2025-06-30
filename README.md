@@ -1,8 +1,34 @@
-# React + Vite
+# SheetBurningCalculator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a React frontend application bootstrapped with Vite.js and JavaScript.
 
-Currently, two official plugins are available:
+## Features
+- React 18 + JavaScript
+- Vite.js for fast development
+- Prettier, ESLint, and EditorConfig for consistent code style (tabs, tab size 4)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Getting Started
+
+### Install dependencies
+```bash
+npm install
+```
+
+### Start development server
+```bash
+npm run dev
+```
+
+### Build for production
+```bash
+npm run build
+```
+
+## Code Style
+- Uses tabs (tab size 4) for indentation
+- Prettier and ESLint are pre-configured
+- EditorConfig enforces consistent settings
+
+---
+
+For more details, see `.prettierrc`, `.eslintrc.cjs`, and `.editorconfig`.
