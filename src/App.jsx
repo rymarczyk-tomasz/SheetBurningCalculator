@@ -56,6 +56,12 @@ function App() {
             setResult("Proszę podać prawidłową grubość blachy (1-400 mm).");
             return;
         }
+        if (thicknessValue > 400) {
+            setResult(
+                "Brak możliwości palenia blach o grubości powyżej 400 mm."
+            );
+            return;
+        }
 
         const multiplier = getThicknessMultiplier(thicknessValue);
 
@@ -85,7 +91,21 @@ function App() {
                     multiplier
                 );
             }
-            setResult(`Czas palenia blachy: ${calculatedResult.toFixed(2)} h`);
+            if (thicknessValue >= 1 && thicknessValue < 3) {
+                setResult("Taką blachę tniemy na wodzie");
+            } else if (thicknessValue >= 3 && thicknessValue <= 25) {
+                setResult(
+                    `Czas palenia blachy: ${calculatedResult.toFixed(
+                        2
+                    )} h - Plazma`
+                );
+            } else {
+                setResult(
+                    `Czas palenia blachy: ${calculatedResult.toFixed(
+                        2
+                    )} h - Palnik gazowy`
+                );
+            }
         } catch (error) {
             setResult(error.message);
         }
