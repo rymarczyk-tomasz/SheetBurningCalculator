@@ -12,8 +12,6 @@ import { calculateTotalLength } from "./calculateTotalLength";
 import { rodCuttingData } from "./rodPipeCuttingData";
 import { waterjetCuttingData } from "./waterjetCuttingData";
 
-const Saw = () => <div>Tu będzie kalkulator cięcia</div>;
-const Waterjet = () => <div>Tu będzie kalkulator cięcia wodą</div>;
 const Hardening = () => <div>Tu będzie kalkulator hartowania</div>;
 const Nitriding = () => <div>Tu będzie kalkulator azotowania</div>;
 const Annealing = () => <div>Tu będzie kalkulator żarzenia</div>;
@@ -32,7 +30,7 @@ function App() {
     const [result, setResult] = useState("");
     const [rodDiameter, setRodDiameter] = useState("");
     const [pipeOuterDiameter, setPipeOuterDiameter] = useState("");
-    const [waterjetType, setWaterjetType] = useState("czarna"); 
+    const [waterjetType, setWaterjetType] = useState("czarna");
 
     useEffect(() => {
         clearFields();
@@ -371,7 +369,7 @@ function App() {
                             gap: "16px",
                             alignItems: "center",
                             marginBottom: 8,
-                            justifyContent: "center", 
+                            justifyContent: "center",
                         }}
                     >
                         <label style={{ margin: 0 }}>
