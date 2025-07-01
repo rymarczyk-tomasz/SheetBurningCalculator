@@ -10,7 +10,7 @@ import { calculateCircle } from "./calculateCircle";
 import { calculateSemiCircle } from "./calculateSemiCircle";
 import { calculateTotalLength } from "./calculateTotalLength";
 import { rodCuttingData } from "./rodPipeCuttingData";
-import { waterjetCuttingData } from "./waterjetCuttingData"; // dodaj import
+import { waterjetCuttingData } from "./waterjetCuttingData";
 
 const Saw = () => <div>Tu będzie kalkulator cięcia</div>;
 const Waterjet = () => <div>Tu będzie kalkulator cięcia wodą</div>;
@@ -32,7 +32,7 @@ function App() {
     const [result, setResult] = useState("");
     const [rodDiameter, setRodDiameter] = useState("");
     const [pipeOuterDiameter, setPipeOuterDiameter] = useState("");
-    const [waterjetType, setWaterjetType] = useState("czarna"); // nowy stan
+    const [waterjetType, setWaterjetType] = useState("czarna"); 
 
     useEffect(() => {
         clearFields();
@@ -371,7 +371,7 @@ function App() {
                             gap: "16px",
                             alignItems: "center",
                             marginBottom: 8,
-                            justifyContent: "center", // dodane wyśrodkowanie
+                            justifyContent: "center", 
                         }}
                     >
                         <label style={{ margin: 0 }}>
