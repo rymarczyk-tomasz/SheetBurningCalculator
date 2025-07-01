@@ -31,6 +31,9 @@ function App() {
     const [rodDiameter, setRodDiameter] = useState("");
     const [pipeOuterDiameter, setPipeOuterDiameter] = useState("");
     const [waterjetType, setWaterjetType] = useState("czarna");
+    const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
+    const [holes, setHoles] = useState([{ diameter: "", count: "" }]);
+    const [rectHoles, setRectHoles] = useState([{ a: "", b: "", count: "" }]);
 
     useEffect(() => {
         clearFields();
@@ -71,6 +74,8 @@ function App() {
         setResult("");
         setRodDiameter("");
         setPipeOuterDiameter("");
+        setHoles([{ diameter: "", count: "" }]);
+        setRectHoles([{ a: "", b: "", count: "" }]);
     };
 
     const getWaterjetMultiplier = (type, thickness) => {
@@ -82,6 +87,24 @@ function App() {
         );
         return found ? found.multiplier : null;
     };
+
+    const handleHoleChange = (idx, field, value) => {
+        const updated = [...holes];
+        updated[idx][field] = value;
+        setHoles(updated);
+    };
+    const addHole = () => setHoles([...holes, { diameter: "", count: "" }]);
+    const removeHole = (idx) => setHoles(holes.filter((_, i) => i !== idx));
+
+    const handleRectHoleChange = (idx, field, value) => {
+        const updated = [...rectHoles];
+        updated[idx][field] = value;
+        setRectHoles(updated);
+    };
+    const addRectHole = () =>
+        setRectHoles([...rectHoles, { a: "", b: "", count: "" }]);
+    const removeRectHole = (idx) =>
+        setRectHoles(rectHoles.filter((_, i) => i !== idx));
 
     const handleCalculate = () => {
         if (process === "burning") {
@@ -125,6 +148,34 @@ function App() {
                         multiplier
                     );
                 }
+
+                let extraLength = 0;
+                holes.forEach(({ diameter, count }) => {
+                    const d = parseFloat(diameter);
+                    const c = parseInt(count);
+                    if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
+                        extraLength += Math.PI * d * c;
+                    }
+                });
+                rectHoles.forEach(({ a, b, count }) => {
+                    const aa = parseFloat(a);
+                    const bb = parseFloat(b);
+                    const c = parseInt(count);
+                    if (
+                        !isNaN(aa) &&
+                        aa > 0 &&
+                        !isNaN(bb) &&
+                        bb > 0 &&
+                        !isNaN(c) &&
+                        c > 0
+                    ) {
+                        extraLength += 2 * (aa + bb) * c;
+                    }
+                });
+                if (extraLength > 0) {
+                    calculatedResult += (extraLength / 1000) * multiplier;
+                }
+
                 if (thicknessValue >= 1 && thicknessValue < 3) {
                     setResult("Taką blachę tniemy na wodzie");
                 } else if (thicknessValue >= 3 && thicknessValue <= 25) {
@@ -230,6 +281,32 @@ function App() {
                         multiplier
                     );
                 }
+                let extraLength = 0;
+                holes.forEach(({ diameter, count }) => {
+                    const d = parseFloat(diameter);
+                    const c = parseInt(count);
+                    if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
+                        extraLength += Math.PI * d * c;
+                    }
+                });
+                rectHoles.forEach(({ a, b, count }) => {
+                    const aa = parseFloat(a);
+                    const bb = parseFloat(b);
+                    const c = parseInt(count);
+                    if (
+                        !isNaN(aa) &&
+                        aa > 0 &&
+                        !isNaN(bb) &&
+                        bb > 0 &&
+                        !isNaN(c) &&
+                        c > 0
+                    ) {
+                        extraLength += 2 * (aa + bb) * c;
+                    }
+                });
+                if (extraLength > 0) {
+                    calculatedResult += (extraLength / 1000) * multiplier;
+                }
                 setResult(
                     `Czas cięcia wodą (${waterjetType}): ${calculatedResult.toFixed(
                         2
@@ -266,6 +343,154 @@ function App() {
                         setShape={setShape}
                         isCutting={false}
                     />
+                    <div style={{ margin: "16px 0" }}>
+                        <button
+                            type="button"
+                            onClick={() => setExtraOptionsVisible((v) => !v)}
+                        >
+                            {extraOptionsVisible ? "Ukryj" : "Dodatkowe opcje"}
+                        </button>
+                        {extraOptionsVisible && (
+                            <div
+                                style={{
+                                    border: "1px solid #ccc",
+                                    padding: 12,
+                                    marginTop: 8,
+                                }}
+                            >
+                                <strong>Otwory kołowe:</strong>
+                                {holes.map((hole, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: "flex",
+                                            gap: 8,
+                                            alignItems: "center",
+                                            marginBottom: 4,
+                                        }}
+                                    >
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Fi (mm)"
+                                            value={hole.diameter}
+                                            onChange={(e) =>
+                                                handleHoleChange(
+                                                    idx,
+                                                    "diameter",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 80 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Ilość"
+                                            value={hole.count}
+                                            onChange={(e) =>
+                                                handleHoleChange(
+                                                    idx,
+                                                    "count",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 60 }}
+                                        />
+                                        {holes.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeHole(idx)}
+                                            >
+                                                -
+                                            </button>
+                                        )}
+                                        {idx === holes.length - 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={addHole}
+                                            >
+                                                +
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <strong>Otwory czworokątne:</strong>
+                                {rectHoles.map((rect, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: "flex",
+                                            gap: 8,
+                                            alignItems: "center",
+                                            marginBottom: 4,
+                                        }}
+                                    >
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Bok A (mm)"
+                                            value={rect.a}
+                                            onChange={(e) =>
+                                                handleRectHoleChange(
+                                                    idx,
+                                                    "a",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 80 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Bok B (mm)"
+                                            value={rect.b}
+                                            onChange={(e) =>
+                                                handleRectHoleChange(
+                                                    idx,
+                                                    "b",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 80 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Ilość"
+                                            value={rect.count}
+                                            onChange={(e) =>
+                                                handleRectHoleChange(
+                                                    idx,
+                                                    "count",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 60 }}
+                                        />
+                                        {rectHoles.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeRectHole(idx)
+                                                }
+                                            >
+                                                -
+                                            </button>
+                                        )}
+                                        {idx === rectHoles.length - 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={addRectHole}
+                                            >
+                                                +
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     {shape === "rectangle" && (
                         <>
                             <InputField
@@ -396,6 +621,154 @@ function App() {
                         setShape={setShape}
                         isCutting={false}
                     />
+                    <div style={{ margin: "16px 0" }}>
+                        <button
+                            type="button"
+                            onClick={() => setExtraOptionsVisible((v) => !v)}
+                        >
+                            {extraOptionsVisible ? "Ukryj" : "Dodatkowe opcje"}
+                        </button>
+                        {extraOptionsVisible && (
+                            <div
+                                style={{
+                                    border: "1px solid #ccc",
+                                    padding: 12,
+                                    marginTop: 8,
+                                }}
+                            >
+                                <strong>Otwory kołowe:</strong>
+                                {holes.map((hole, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: "flex",
+                                            gap: 8,
+                                            alignItems: "center",
+                                            marginBottom: 4,
+                                        }}
+                                    >
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Fi (mm)"
+                                            value={hole.diameter}
+                                            onChange={(e) =>
+                                                handleHoleChange(
+                                                    idx,
+                                                    "diameter",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 80 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Ilość"
+                                            value={hole.count}
+                                            onChange={(e) =>
+                                                handleHoleChange(
+                                                    idx,
+                                                    "count",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 60 }}
+                                        />
+                                        {holes.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeHole(idx)}
+                                            >
+                                                -
+                                            </button>
+                                        )}
+                                        {idx === holes.length - 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={addHole}
+                                            >
+                                                +
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                                <strong>Otwory czworokątne:</strong>
+                                {rectHoles.map((rect, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: "flex",
+                                            gap: 8,
+                                            alignItems: "center",
+                                            marginBottom: 4,
+                                        }}
+                                    >
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Bok A (mm)"
+                                            value={rect.a}
+                                            onChange={(e) =>
+                                                handleRectHoleChange(
+                                                    idx,
+                                                    "a",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 80 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Bok B (mm)"
+                                            value={rect.b}
+                                            onChange={(e) =>
+                                                handleRectHoleChange(
+                                                    idx,
+                                                    "b",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 80 }}
+                                        />
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            placeholder="Ilość"
+                                            value={rect.count}
+                                            onChange={(e) =>
+                                                handleRectHoleChange(
+                                                    idx,
+                                                    "count",
+                                                    e.target.value
+                                                )
+                                            }
+                                            style={{ width: 60 }}
+                                        />
+                                        {rectHoles.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    removeRectHole(idx)
+                                                }
+                                            >
+                                                -
+                                            </button>
+                                        )}
+                                        {idx === rectHoles.length - 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={addRectHole}
+                                            >
+                                                +
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                     {shape === "rectangle" && (
                         <>
                             <InputField
