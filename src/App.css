@@ -17,7 +17,7 @@ label {
 input,
 select {
     width: 100%;
-    max-width: 600px; /* Dodano ograniczenie szerokości */
+    max-width: 600px;
     padding: 8px;
     box-sizing: border-box;
     margin-left: auto;
