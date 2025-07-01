@@ -6,7 +6,7 @@ const processes = [
     { value: "waterjet", label: "Cięcie wodą" },
     { value: "hardening", label: "Hartowanie" },
     { value: "nitriding", label: "Azotowanie" },
-    { value: "annealing", label: "Żarzenie" },
+    { value: "annealing", label: "Wyrzażanie" },
     { value: "tempering", label: "Ulepszanie cieplne" },
     { value: "carburizing", label: "Nawęglanie" },
 ];
@@ -26,7 +26,8 @@ const ProcessSelector = ({ process, setProcess }) => {
                             marginRight: 8,
                             marginBottom: 8,
                             padding: "6px 16px",
-                            background: process === p.value ? "#1976d2" : "#eee",
+                            background:
+                                process === p.value ? "#1976d2" : "#eee",
                             color: process === p.value ? "#fff" : "#222",
                             border: "none",
                             borderRadius: 4,
