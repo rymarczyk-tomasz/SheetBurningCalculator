@@ -257,7 +257,7 @@ function App() {
 
     return (
         <div className="container" onKeyPress={handleKeyPress}>
-            <h1>Kalkulator normatywu czasu pracy</h1>
+            <h1>Kalkulator normatywu czasu</h1>
             <ProcessSelector process={process} setProcess={setProcess} />
             {process === "burning" && (
                 <>
