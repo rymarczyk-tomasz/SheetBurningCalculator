@@ -9,6 +9,7 @@ import { calculateRectangle } from "./calculateRectangle";
 import { calculateCircle } from "./calculateCircle";
 import { calculateSemiCircle } from "./calculateSemiCircle";
 import { calculateTotalLength } from "./calculateTotalLength";
+import { rodCuttingData } from "./rodPipeCuttingData"; 
 
 const Saw = () => <div>Tu będzie kalkulator cięcia</div>;
 const Waterjet = () => <div>Tu będzie kalkulator cięcia wodą</div>;
@@ -29,8 +30,7 @@ function App() {
     const [totalLength, setTotalLength] = useState("");
     const [result, setResult] = useState("");
     const [rodDiameter, setRodDiameter] = useState("");
-    const [pipeOuterDiameter, setPipeOuterDiameter] = useState(""); // Dodaj do stanu
-    const [pipeInnerDiameter, setPipeInnerDiameter] = useState(""); // Dodaj do stanu
+    const [pipeOuterDiameter, setPipeOuterDiameter] = useState("");
 
     useEffect(() => {
         clearFields();
@@ -69,69 +69,113 @@ function App() {
         setThickness("");
         setTotalLength("");
         setResult("");
-        setRodDiameter(""); // Czyść fi pręta
-        setPipeOuterDiameter(""); // Czyść fi zewnętrzne rury
-        setPipeInnerDiameter(""); // Czyść fi wewnętrzne rury
+        setRodDiameter("");
+        setPipeOuterDiameter("");
     };
 
     const handleCalculate = () => {
-        const thicknessValue = parseInt(thickness);
-        if (isNaN(thicknessValue) || thicknessValue <= 0) {
-            setResult("Proszę podać prawidłową grubość blachy (1-400 mm).");
-            return;
-        }
-        if (thicknessValue > 400) {
-            setResult(
-                "Brak możliwości palenia blach o grubości powyżej 400 mm."
-            );
+        if (process === "burning") {
+            const thicknessValue = parseInt(thickness);
+            if (isNaN(thicknessValue) || thicknessValue <= 0) {
+                setResult("Proszę podać prawidłową grubość blachy (1-400 mm).");
+                return;
+            }
+            if (thicknessValue > 400) {
+                setResult(
+                    "Brak możliwości palenia blach o grubości powyżej 400 mm."
+                );
+                return;
+            }
+
+            const multiplier = getThicknessMultiplier(thicknessValue);
+
+            try {
+                let calculatedResult;
+                if (shape === "rectangle") {
+                    calculatedResult = calculateRectangle(
+                        length,
+                        width,
+                        multiplier
+                    );
+                } else if (shape === "circle") {
+                    calculatedResult = calculateCircle(
+                        outerDiameter,
+                        innerDiameter,
+                        multiplier
+                    );
+                } else if (shape === "semicircle") {
+                    calculatedResult = calculateSemiCircle(
+                        outerDiameter,
+                        innerDiameter,
+                        multiplier
+                    );
+                } else if (shape === "totalLength") {
+                    calculatedResult = calculateTotalLength(
+                        totalLength,
+                        multiplier
+                    );
+                }
+                if (thicknessValue >= 1 && thicknessValue < 3) {
+                    setResult("Taką blachę tniemy na wodzie");
+                } else if (thicknessValue >= 3 && thicknessValue <= 25) {
+                    setResult(
+                        `Czas palenia blachy: ${calculatedResult.toFixed(
+                            2
+                        )} h - Plazma`
+                    );
+                } else {
+                    setResult(
+                        `Czas palenia blachy: ${calculatedResult.toFixed(
+                            2
+                        )} h - Palnik gazowy`
+                    );
+                }
+            } catch (error) {
+                setResult(error.message);
+            }
             return;
         }
 
-        const multiplier = getThicknessMultiplier(thicknessValue);
-
-        try {
-            let calculatedResult;
-            if (shape === "rectangle") {
-                calculatedResult = calculateRectangle(
-                    length,
-                    width,
-                    multiplier
+        if (process === "saw") {
+            if (shape === "rod") {
+                const diameter = parseInt(rodDiameter);
+                if (isNaN(diameter) || diameter <= 0) {
+                    setResult("Proszę podać prawidłową średnicę pręta.");
+                    return;
+                }
+                const found = rodCuttingData.find(
+                    (row) => diameter >= row.minDiameter && diameter <= row.maxDiameter
                 );
-            } else if (shape === "circle") {
-                calculatedResult = calculateCircle(
-                    outerDiameter,
-                    innerDiameter,
-                    multiplier
-                );
-            } else if (shape === "semicircle") {
-                calculatedResult = calculateSemiCircle(
-                    outerDiameter,
-                    innerDiameter,
-                    multiplier
-                );
-            } else if (shape === "totalLength") {
-                calculatedResult = calculateTotalLength(
-                    totalLength,
-                    multiplier
-                );
+                if (found) {
+                    const mpk = diameter < 180 ? "Mpk 416" : "Mpk 418";
+                    setResult(
+                        `Na cięcie pręta potrzeba ${found.time} h - ${mpk}`
+                    );
+                } else {
+                    setResult("Brak danych dla podanej średnicy pręta.");
+                }
+                return;
             }
-            if (thicknessValue >= 1 && thicknessValue < 3) {
-                setResult("Taką blachę tniemy na wodzie");
-            } else if (thicknessValue >= 3 && thicknessValue <= 25) {
-                setResult(
-                    `Czas palenia blachy: ${calculatedResult.toFixed(
-                        2
-                    )} h - Plazma`
+            if (shape === "pipe") {
+                const diameter = parseInt(pipeOuterDiameter);
+                if (isNaN(diameter) || diameter <= 0) {
+                    setResult("Proszę podać prawidłową średnicę rury.");
+                    return;
+                }
+                const found = rodCuttingData.find(
+                    (row) => diameter >= row.minDiameter && diameter <= row.maxDiameter
                 );
-            } else {
-                setResult(
-                    `Czas palenia blachy: ${calculatedResult.toFixed(
-                        2
-                    )} h - Palnik gazowy`
-                );
+                if (found) {
+                    const pipeTime = found.time / 2;
+                    const mpk = diameter < 180 ? "Mpk 416" : "Mpk 418";
+                    setResult(
+                        `Na cięcie rury potrzeba ${pipeTime} h - ${mpk}`
+                    );
+                } else {
+                    setResult("Brak danych dla podanej średnicy rury.");
+                }
+                return;
             }
-        } catch (error) {
-            setResult(error.message);
         }
     };
 
@@ -242,7 +286,9 @@ function App() {
                                 id="pipeOuterDiameter"
                                 label="Fi zewnętrzne rury (mm):"
                                 value={pipeOuterDiameter}
-                                onChange={(e) => setPipeOuterDiameter(e.target.value)}
+                                onChange={(e) =>
+                                    setPipeOuterDiameter(e.target.value)
+                                }
                                 placeholder="Wpisz fi zewnętrzne rury w mm"
                             />
                         </>
