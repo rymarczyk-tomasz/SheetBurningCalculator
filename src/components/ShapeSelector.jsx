@@ -32,7 +32,7 @@ const ShapeSelector = ({ shape, setShape, isCutting }) => {
 ShapeSelector.propTypes = {
     shape: PropTypes.string.isRequired,
     setShape: PropTypes.func.isRequired,
-    isCutting: PropTypes.bool, // Dodaj ten prop
+    isCutting: PropTypes.bool,
 };
 
 export default ShapeSelector;
