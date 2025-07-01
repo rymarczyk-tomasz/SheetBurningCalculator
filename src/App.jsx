@@ -14,7 +14,7 @@ import { waterjetCuttingData } from "./waterjetCuttingData";
 
 const Hardening = () => <div>Tu będzie kalkulator hartowania</div>;
 const Nitriding = () => <div>Tu będzie kalkulator azotowania</div>;
-const Annealing = () => <div>Tu będzie kalkulator żarzenia</div>;
+const Annealing = () => <div>Tu będzie kalkulator wyżarzania</div>;
 const Tempering = () => <div>Tu będzie kalkulator ulepszania cieplnego</div>;
 const Carburizing = () => <div>Tu będzie kalkulator nawęglania</div>;
 
