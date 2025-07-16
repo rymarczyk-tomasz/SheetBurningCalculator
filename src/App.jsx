@@ -30,7 +30,6 @@ function App() {
     const [process, setProcess] = useState("burning");
     const [shape, setShape] = useState("rectangle");
 
-    // Wspólne dane
     const [length, setLength] = useState("");
     const [width, setWidth] = useState("");
     const [outerDiameter, setOuterDiameter] = useState("");
@@ -46,7 +45,6 @@ function App() {
     const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
     const [result, setResult] = useState("");
 
-    // Resetowanie pól
     const clearFields = () => {
         setLength("");
         setWidth("");
@@ -61,18 +59,15 @@ function App() {
         setResult("");
     };
 
-    // Automatyczny reset przy zmianie kształtu lub procesu
     useEffect(() => {
         clearFields();
     }, [shape, process]);
 
-    // Ustawianie domyślnego kształtu przy zmianie procesu
     useEffect(() => {
         if (process === "saw") setShape("rod");
         if (process === "burning") setShape("rectangle");
     }, [process]);
 
-    // Obliczenia
     function handleCalculate() {
         let message = "";
 
@@ -116,7 +111,6 @@ function App() {
         clearFields();
     };
 
-    // Obsługa skrótów klawiszowych
     useKeyShortcuts({
         onEnter: handleCalculate,
         onEscape: handleClear,
@@ -200,7 +194,7 @@ function App() {
                     />
                 )}
 
-                {/* Strony placeholderowe */}
+                {}
                 {process === "hardening" && <Hardening />}
                 {process === "nitriding" && <Nitriding />}
                 {process === "annealing" && <Annealing />}

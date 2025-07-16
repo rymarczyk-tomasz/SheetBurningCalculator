@@ -1,4 +1,3 @@
-// src/components/BurningCalculator/ExtraOptions.jsx
 import React from "react";
 
 export default function ExtraOptions({

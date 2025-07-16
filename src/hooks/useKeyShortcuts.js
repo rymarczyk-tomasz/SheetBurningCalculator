@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 
 /**
- * Hook do obsługi skrótów klawiszowych (Enter / Escape)
  * @param {Object} params
- * @param {function} params.onEnter - funkcja uruchamiana po Enter
- * @param {function} params.onEscape - funkcja uruchamiana po Escape
+ * @param {function} params.onEnter
+ * @param {function} params.onEscape
  */
 export default function useKeyShortcuts({ onEnter, onEscape }) {
     useEffect(() => {

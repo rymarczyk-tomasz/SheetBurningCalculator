@@ -1,4 +1,3 @@
-// src/components/BurningCalculator/BurningCalculator.jsx
 import React from "react";
 import ShapeSelector from "../ShapeSelector";
 import InputField from "../InputField";
