@@ -5,20 +5,17 @@ import ProcessSelector from "./components/ProcessSelector";
 import BurningCalculator from "./components/BurningCalculator/BurningCalculator";
 import SawCalculator from "./components/SawCalculator/SawCalculator";
 import WaterjetCalculator from "./components/WaterjetCalculator/WaterjetCalculator";
-
-import {
-    Hardening,
-    Nitriding,
-    Annealing,
-    Tempering,
-    Carburizing,
-    Beveling,
-    GrindingAfterBurning,
-    Deburring,
-    Straightening,
-    UTTesting,
-    BevelingMilling,
-} from "./components/ProcessPages";
+import Hardening from "./components/ProcessPages/Hardening";
+import Nitriding from "./components/ProcessPages/Nitriding";
+import Annealing from "./components/ProcessPages/Annealing";
+import Tempering from "./components/ProcessPages/Tempering";
+import Carburizing from "./components/ProcessPages/Carburizing";
+import Beveling from "./components/ProcessPages/Beveling";
+import GrindingAfterBurning from "./components/ProcessPages/GrindingAfterBurning";
+import Deburring from "./components/ProcessPages/Deburring";
+import Straightening from "./components/ProcessPages/Straightening";
+import UTTesting from "./components/ProcessPages/UTTesting";
+import BevelingMilling from "./components/ProcessPages/BevelingMilling";
 
 import useKeyShortcuts from "./hooks/useKeyShortcuts";
 
