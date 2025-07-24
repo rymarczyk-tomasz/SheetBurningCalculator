@@ -71,7 +71,7 @@ export default function Annealing() {
                 const time = annealingKrometData[idx]?.time;
                 setResult(`Czas wyżarzania (KROMET): ${time} h`);
             } else {
-                const hours = Math.floor((massVal - 1) / 1000);
+                const hours = Math.floor((massVal) / 1000);
                 setResult(`Czas wyżarzania (KROMET): ${hours} h`);
             }
             return;
