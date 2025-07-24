@@ -1,8 +1,15 @@
 .container {
-    max-width: 600px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     text-align: center;
+    justify-content: center;
+}
+
+.secondary-container {
+    max-width: 600px;
+    margin: 32px auto 0 auto;
+    padding: 20px;
 }
 
 .form-group {

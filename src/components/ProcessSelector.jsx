@@ -9,6 +9,12 @@ const processes = [
     { value: "annealing", label: "Wyrzażanie" },
     { value: "tempering", label: "Ulepszanie cieplne" },
     { value: "carburizing", label: "Nawęglanie" },
+    { value: "beveling", label: "Fazowanie" },
+    { value: "grindingAfterBurning", label: "Szlifowanie po paleniu" },
+    { value: "deburring", label: "Gratowanie" },
+    { value: "straightening", label: "Prostowanie" },
+    { value: "utTesting", label: "Badanie UT" },
+    { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
 ];
 
 const ProcessSelector = ({ process, setProcess }) => {
