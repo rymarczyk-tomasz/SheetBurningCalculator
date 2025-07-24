@@ -77,7 +77,6 @@ export default function Annealing() {
             return;
         }
 
-        // MAAG
         if (!csvData || !csvData.data || csvData.data.length === 0) {
             setResult("Ładowanie danych lub brak danych w pliku CSV.");
             return;
