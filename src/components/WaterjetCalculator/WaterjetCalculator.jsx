@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ShapeSelector from "../ShapeSelector";
 import InputField from "../InputField";
 import Result from "../Result";
@@ -31,6 +31,14 @@ export default function WaterjetCalculator({
     handleCalculate,
     handleClear,
 }) {
+    // Dodaj efekt ustawiający domyślny kształt na "rectangle"
+    useEffect(() => {
+        if (shape !== "rectangle") {
+            setShape("rectangle");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <>
             <div
