@@ -64,7 +64,6 @@ export default function Annealing() {
                 return;
             }
             if (massVal <= 1000) {
-                // Szukaj najbliższej wartości z tabeli
                 const idx = findClosest(
                     annealingKrometData.map((d) => d.kg),
                     massVal
@@ -72,7 +71,6 @@ export default function Annealing() {
                 const time = annealingKrometData[idx]?.time;
                 setResult(`Czas wyżarzania (KROMET): ${time} h`);
             } else {
-                // Każde rozpoczęte 1000kg powyżej 1000kg = 1h (czyli 1001-2000 -> 1h, 2001-3000 -> 2h itd.)
                 const hours = Math.floor((massVal - 1) / 1000);
                 setResult(`Czas wyżarzania (KROMET): ${hours} h`);
             }
