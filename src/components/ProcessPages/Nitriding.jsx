@@ -28,7 +28,6 @@ export default function Nitriding() {
             .trim()
             .split("\n")
             .map((row) => row.split(","));
-        // Uwaga: nagłówek to "masa", nie "Masa"
         const thicknesses = rows[0].slice(1).map(Number);
         const data = rows.slice(1).map((row) => ({
             mass: Number(row[0]),
