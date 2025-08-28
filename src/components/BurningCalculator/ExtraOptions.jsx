@@ -28,13 +28,10 @@ export default function ExtraOptions({
         setRectHoles(rectHoles.filter((_, i) => i !== idx));
 
     return (
-        <div style={{ border: "1px solid #ccc", padding: 12, marginTop: 8 }}>
+        <div className="extra-options-container">
             <strong>Otwory kołowe:</strong>
             {holes.map((hole, idx) => (
-                <div
-                    key={idx}
-                    style={{ display: "flex", gap: 8, marginBottom: 4 }}
-                >
+                <div key={idx} className="extra-options-row">
                     <input
                         type="number"
                         min="1"
@@ -43,7 +40,7 @@ export default function ExtraOptions({
                         onChange={(e) =>
                             handleHoleChange(idx, "diameter", e.target.value)
                         }
-                        style={{ width: 80 }}
+                        className="extra-options-input extra-options-input--diameter"
                     />
                     <input
                         type="number"
@@ -53,7 +50,7 @@ export default function ExtraOptions({
                         onChange={(e) =>
                             handleHoleChange(idx, "count", e.target.value)
                         }
-                        style={{ width: 60 }}
+                        className="extra-options-input extra-options-input--count"
                     />
                     {holes.length > 1 && (
                         <button type="button" onClick={() => removeHole(idx)}>
@@ -67,13 +64,9 @@ export default function ExtraOptions({
                     )}
                 </div>
             ))}
-
             <strong>Otwory czworokątne:</strong>
             {rectHoles.map((rect, idx) => (
-                <div
-                    key={idx}
-                    style={{ display: "flex", gap: 8, marginBottom: 4 }}
-                >
+                <div key={idx} className="extra-options-row">
                     <input
                         type="number"
                         min="1"
@@ -82,7 +75,7 @@ export default function ExtraOptions({
                         onChange={(e) =>
                             handleRectHoleChange(idx, "a", e.target.value)
                         }
-                        style={{ width: 80 }}
+                        className="extra-options-input extra-options-input--side"
                     />
                     <input
                         type="number"
@@ -92,7 +85,7 @@ export default function ExtraOptions({
                         onChange={(e) =>
                             handleRectHoleChange(idx, "b", e.target.value)
                         }
-                        style={{ width: 80 }}
+                        className="extra-options-input extra-options-input--side"
                     />
                     <input
                         type="number"
@@ -102,7 +95,7 @@ export default function ExtraOptions({
                         onChange={(e) =>
                             handleRectHoleChange(idx, "count", e.target.value)
                         }
-                        style={{ width: 60 }}
+                        className="extra-options-input extra-options-input--count"
                     />
                     {rectHoles.length > 1 && (
                         <button

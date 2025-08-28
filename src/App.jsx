@@ -14,7 +14,6 @@ import Beveling from "./components/ProcessPages/Beveling";
 import GrindingAfterBurning from "./components/ProcessPages/GrindingAfterBurning";
 import Deburring from "./components/ProcessPages/Deburring";
 import Straightening from "./components/ProcessPages/Straightening";
-import UTTesting from "./components/ProcessPages/UTTesting";
 import BevelingMilling from "./components/ProcessPages/BevelingMilling";
 
 import useKeyShortcuts from "./hooks/useKeyShortcuts";
@@ -201,7 +200,6 @@ function App() {
                 {process === "grindingAfterBurning" && <GrindingAfterBurning />}
                 {process === "deburring" && <Deburring />}
                 {process === "straightening" && <Straightening />}
-                {process === "utTesting" && <UTTesting />}
                 {process === "bevelingMilling" && <BevelingMilling />}
             </div>
         </div>

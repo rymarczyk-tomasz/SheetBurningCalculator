@@ -37,7 +37,7 @@ export default function BurningCalculator({
                 isCutting={false}
             />
 
-            <div style={{ margin: "16px 0" }}>
+            <div className="options-toggle-group">
                 <button
                     type="button"
                     onClick={() => setExtraOptionsVisible((v) => !v)}
