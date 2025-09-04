@@ -39,14 +39,7 @@ export default function WaterjetCalculator({
 
     return (
         <>
-            <div
-                style={{
-                    display: "flex",
-                    gap: "16px",
-                    justifyContent: "center",
-                    marginBottom: 8,
-                }}
-            >
+            <div className="waterjet-type-group">
                 <label>
                     <input
                         type="radio"
@@ -73,7 +66,7 @@ export default function WaterjetCalculator({
                 isCutting={false}
             />
 
-            <div style={{ margin: "16px 0" }}>
+            <div className="options-toggle-group">
                 <button
                     type="button"
                     onClick={() => setExtraOptionsVisible((v) => !v)}

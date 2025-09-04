@@ -81,7 +81,6 @@ export default function Hardening() {
         setResult(null);
     };
 
-    // Dodaj obsługę klawiszy Enter i Escape
     useKeyShortcuts({
         onEnter: handleCalculate,
         onEscape: handleClear,

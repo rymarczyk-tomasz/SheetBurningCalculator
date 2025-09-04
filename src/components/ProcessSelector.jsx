@@ -13,7 +13,6 @@ const processes = [
     { value: "grindingAfterBurning", label: "Szlifowanie po paleniu" },
     { value: "deburring", label: "Gratowanie" },
     { value: "straightening", label: "Prostowanie" },
-    { value: "utTesting", label: "Badanie UT" },
     { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
 ];
 
@@ -27,18 +26,9 @@ const ProcessSelector = ({ process, setProcess }) => {
                         key={p.value}
                         type="button"
                         onClick={() => setProcess(p.value)}
-                        className={process === p.value ? "active" : ""}
-                        style={{
-                            marginRight: 8,
-                            marginBottom: 8,
-                            padding: "6px 16px",
-                            background:
-                                process === p.value ? "#1976d2" : "#eee",
-                            color: process === p.value ? "#fff" : "#222",
-                            border: "none",
-                            borderRadius: 4,
-                            cursor: "pointer",
-                        }}
+                        className={`process-selector-btn${
+                            process === p.value ? " active" : ""
+                        }`}
                     >
                         {p.label}
                     </button>
