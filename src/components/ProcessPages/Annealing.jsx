@@ -147,7 +147,10 @@ export default function Annealing() {
             )}
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
-            <MassCalculator onMassUpdate={handleMassUpdate} />
+            <MassCalculator
+                onMassUpdate={handleMassUpdate}
+                showRodShape={true}
+            />
             <Result result={result} />
         </>
     );

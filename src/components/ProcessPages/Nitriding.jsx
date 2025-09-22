@@ -121,7 +121,11 @@ export default function Nitriding() {
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
 
-            <MassCalculator onMassUpdate={handleMassUpdate} />
+            <MassCalculator
+                onMassUpdate={handleMassUpdate}
+                isCutting={false}
+                showRodShape={true}
+            />
 
             <Result result={result} />
         </>

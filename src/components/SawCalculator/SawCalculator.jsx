@@ -1,11 +1,8 @@
-import React from "react";
-import ShapeSelector from "../ShapeSelector";
+import React, { useState } from "react";
 import InputField from "../InputField";
 import Result from "../Result";
 
 export default function SawCalculator({
-    shape,
-    setShape,
     rodDiameter,
     setRodDiameter,
     pipeOuterDiameter,
@@ -14,9 +11,23 @@ export default function SawCalculator({
     handleClear,
     result,
 }) {
+    const [shape, setShape] = useState("rod");
+
     return (
         <>
-            <ShapeSelector shape={shape} setShape={setShape} isCutting={true} />
+            <div className="form-group">
+                <label htmlFor="shape">
+                    Wybierz kształt ciętego materiału:
+                </label>
+                <select
+                    id="shape"
+                    value={shape}
+                    onChange={(e) => setShape(e.target.value)}
+                >
+                    <option value="rod">Pręt</option>
+                    <option value="pipe">Rura</option>
+                </select>
+            </div>
 
             {shape === "rod" && (
                 <InputField
