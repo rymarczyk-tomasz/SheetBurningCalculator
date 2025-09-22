@@ -1,12 +1,13 @@
 import { rodCuttingData } from "../../data/rodPipeCuttingData";
 
-export function sawCalculator({ shape, rodDiameter, pipeOuterDiameter }) {
-    const diameter = parseInt(
-        shape === "rod" ? rodDiameter : pipeOuterDiameter
-    );
+export function sawCalculator({ rodDiameter }) {
+    const diameter = parseInt(rodDiameter);
 
     if (isNaN(diameter) || diameter <= 0) {
-        return "Proszę podać prawidłową średnicę.";
+        return {
+            rodResult: "Proszę podać prawidłową średnicę.",
+            pipeResult: "Proszę podać prawidłową średnicę.",
+        };
     }
 
     const found = rodCuttingData.find(
@@ -14,15 +15,17 @@ export function sawCalculator({ shape, rodDiameter, pipeOuterDiameter }) {
     );
 
     if (!found) {
-        return `Brak danych dla podanej średnicy ${
-            shape === "rod" ? "pręta" : "rury"
-        }.`;
+        return {
+            rodResult: `Brak danych dla podanej średnicy pręta.`,
+            pipeResult: `Brak danych dla podanej średnicy rury.`,
+        };
     }
 
-    const time = shape === "rod" ? found.time : found.time / 2;
+    const time = found.time;
     const mpk = diameter < 180 ? "Mpk 416" : "Mpk 418";
 
-    return `Na cięcie ${
-        shape === "rod" ? "pręta" : "rury"
-    } potrzeba ${time} h - ${mpk}`;
+    const rodResult = `Na cięcie pręta potrzeba ${time} h - ${mpk}`;
+    const pipeResult = `Na cięcie rury potrzeba ${time / 2} h - ${mpk}`;
+
+    return { rodResult, pipeResult };
 }

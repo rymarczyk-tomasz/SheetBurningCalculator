@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 
 export default function MassCalculator({
     onMassUpdate,
-    isCutting,
-    showRodShape,
+    isCutting = false,
+    showRodShape = false,
 }) {
     const [shape, setShape] = useState("rectangle");
     const [length, setLength] = useState("");
@@ -257,9 +257,4 @@ MassCalculator.propTypes = {
     onMassUpdate: PropTypes.func.isRequired,
     isCutting: PropTypes.bool,
     showRodShape: PropTypes.bool,
-};
-
-MassCalculator.defaultProps = {
-    isCutting: false,
-    showRodShape: false,
 };

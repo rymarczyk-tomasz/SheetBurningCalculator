@@ -1,6 +1,10 @@
 import PropTypes from "prop-types";
 
 const ShapeSelector = ({ shape, setShape, isCutting, showRodShape }) => {
+    shape = shape || "rectangle";
+    isCutting = isCutting || false;
+    showRodShape = showRodShape || false;
+
     return (
         <div className="form-group">
             <label htmlFor="shape">
@@ -26,15 +30,10 @@ const ShapeSelector = ({ shape, setShape, isCutting, showRodShape }) => {
 };
 
 ShapeSelector.propTypes = {
-    shape: PropTypes.string.isRequired,
+    shape: PropTypes.string,
     setShape: PropTypes.func.isRequired,
     isCutting: PropTypes.bool,
     showRodShape: PropTypes.bool,
-};
-
-ShapeSelector.defaultProps = {
-    isCutting: false,
-    showRodShape: false,
 };
 
 export default ShapeSelector;

@@ -1,6 +1,7 @@
 import { calculateRectangle } from "../calculateRectangle";
 import { calculateSemiCircle } from "../calculateSemiCircle";
 import { calculateTotalLength } from "../calculateTotalLength";
+import { calculateCircle } from "../calculateCircle"; // Import calculateCircle
 import { waterjetCuttingData } from "../../data/waterjetCuttingData";
 
 export function getWaterjetMultiplier(type, thickness) {
@@ -35,25 +36,33 @@ export function waterjetCalculator({
     }
 
     let result = 0;
-    switch (shape) {
-        case "rectangle":
-            result = calculateRectangle(length, width, multiplier);
-            break;
-        case "circle":
-            result = calculateCircle(outerDiameter, innerDiameter, multiplier);
-            break;
-        case "semicircle":
-            result = calculateSemiCircle(
-                outerDiameter,
-                innerDiameter,
-                multiplier
-            );
-            break;
-        case "totalLength":
-            result = calculateTotalLength(totalLength, multiplier);
-            break;
-        default:
-            return "Nieobsługiwany kształt.";
+    try {
+        switch (shape) {
+            case "rectangle":
+                result = calculateRectangle(length, width, multiplier);
+                break;
+            case "circle":
+                result = calculateCircle(
+                    outerDiameter,
+                    innerDiameter,
+                    multiplier
+                );
+                break;
+            case "semicircle":
+                result = calculateSemiCircle(
+                    outerDiameter,
+                    innerDiameter,
+                    multiplier
+                );
+                break;
+            case "totalLength":
+                result = calculateTotalLength(totalLength, multiplier);
+                break;
+            default:
+                return "Nieobsługiwany kształt.";
+        }
+    } catch (error) {
+        return error.message;
     }
 
     let extraLength = 0;
