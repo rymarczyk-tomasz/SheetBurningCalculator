@@ -18,10 +18,10 @@ const ShapeSelector = ({ shape, setShape, isCutting }) => {
                     </>
                 ) : (
                     <>
-                        <option value="totalLength">Całkowita długość boków</option>
                         <option value="rectangle">Czworokąt</option>
                         <option value="circle">Okrąg / Pierścień</option>
                         <option value="semicircle">Półpierścień</option>
+                        <option value="totalLength">Całkowita długość boków</option>
                     </>
                 )}
             </select>
