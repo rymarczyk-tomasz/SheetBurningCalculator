@@ -1,6 +1,7 @@
 import { calculateRectangle } from "../calculateRectangle";
 import { calculateSemiCircle } from "../calculateSemiCircle";
 import { calculateTotalLength } from "../calculateTotalLength";
+import { calculateCircle } from "../calculateCircle"; // Import calculateCircle
 import { getThicknessMultiplier } from "../getThicknessMultiplier";
 
 export function burningCalculator({
@@ -25,25 +26,33 @@ export function burningCalculator({
     const multiplier = getThicknessMultiplier(thicknessValue);
     let result = 0;
 
-    switch (shape) {
-        case "rectangle":
-            result = calculateRectangle(length, width, multiplier);
-            break;
-        case "circle":
-            result = calculateCircle(outerDiameter, innerDiameter, multiplier);
-            break;
-        case "semicircle":
-            result = calculateSemiCircle(
-                outerDiameter,
-                innerDiameter,
-                multiplier
-            );
-            break;
-        case "totalLength":
-            result = calculateTotalLength(totalLength, multiplier);
-            break;
-        default:
-            return "Nieobsługiwany kształt.";
+    try {
+        switch (shape) {
+            case "rectangle":
+                result = calculateRectangle(length, width, multiplier);
+                break;
+            case "circle":
+                result = calculateCircle(
+                    outerDiameter,
+                    innerDiameter,
+                    multiplier
+                );
+                break;
+            case "semicircle":
+                result = calculateSemiCircle(
+                    outerDiameter,
+                    innerDiameter,
+                    multiplier
+                );
+                break;
+            case "totalLength":
+                result = calculateTotalLength(totalLength, multiplier);
+                break;
+            default:
+                return "Nieobsługiwany kształt.";
+        }
+    } catch (error) {
+        return error.message;
     }
 
     let extraLength = 0;

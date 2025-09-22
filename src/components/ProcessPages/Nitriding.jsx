@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import MassCalculator from "../MassCalculator";
 
 export default function Nitriding() {
     const [mass, setMass] = useState("");
@@ -92,6 +93,10 @@ export default function Nitriding() {
         setResult(null);
     };
 
+    const handleMassUpdate = (value) => {
+        setMass(value);
+    };
+
     useKeyShortcuts({
         onEnter: handleCalculate,
         onEscape: handleClear,
@@ -104,7 +109,7 @@ export default function Nitriding() {
                 label="Masa detalu (kg):"
                 value={mass}
                 onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg"
+                placeholder="Wpisz masę w kg, jezeli nie znasz masy, uzyj kalkulatora poniżej"
             />
             <InputField
                 id="thickness"
@@ -115,6 +120,13 @@ export default function Nitriding() {
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
+
+            <MassCalculator
+                onMassUpdate={handleMassUpdate}
+                isCutting={false}
+                showRodShape={true}
+            />
+
             <Result result={result} />
         </>
     );

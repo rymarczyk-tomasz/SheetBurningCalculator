@@ -3,6 +3,7 @@ import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import { annealingKrometData } from "../../data/annealingKrometData";
+import MassCalculator from "../MassCalculator";
 
 export default function Annealing() {
     const [mass, setMass] = useState("");
@@ -71,7 +72,7 @@ export default function Annealing() {
                 const time = annealingKrometData[idx]?.time;
                 setResult(`Czas wyżarzania (KROMET): ${time} h`);
             } else {
-                const hours = Math.floor((massVal) / 1000);
+                const hours = Math.floor(massVal / 1000);
                 setResult(`Czas wyżarzania (KROMET): ${hours} h`);
             }
             return;
@@ -105,6 +106,10 @@ export default function Annealing() {
         setMass("");
         setThickness("");
         setResult(null);
+    };
+
+    const handleMassUpdate = (value) => {
+        setMass(value);
     };
 
     useKeyShortcuts({
@@ -142,6 +147,10 @@ export default function Annealing() {
             )}
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
+            <MassCalculator
+                onMassUpdate={handleMassUpdate}
+                showRodShape={true}
+            />
             <Result result={result} />
         </>
     );
