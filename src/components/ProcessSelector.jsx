@@ -14,6 +14,7 @@ const processes = [
     { value: "deburring", label: "Gratowanie" },
     { value: "straightening", label: "Prostowanie" },
     { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
+    { value: "welding", label: "Spawanie ręczne MAG-135" },
 ];
 
 const ProcessSelector = ({ process, setProcess }) => {

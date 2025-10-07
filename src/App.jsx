@@ -15,7 +15,7 @@ import GrindingAfterBurning from "./components/ProcessPages/GrindingAfterBurning
 import Deburring from "./components/ProcessPages/Deburring";
 import Straightening from "./components/ProcessPages/Straightening";
 import BevelingMilling from "./components/ProcessPages/BevelingMilling";
-
+import Welding from "./components/ProcessPages/Welding";
 import useKeyShortcuts from "./hooks/useKeyShortcuts";
 
 import { burningCalculator } from "./utils/calculators/burningCalculator";
@@ -201,6 +201,7 @@ function App() {
                 {process === "deburring" && <Deburring />}
                 {process === "straightening" && <Straightening />}
                 {process === "bevelingMilling" && <BevelingMilling />}
+                {process === "welding" && <Welding />}
             </div>
         </div>
     );
