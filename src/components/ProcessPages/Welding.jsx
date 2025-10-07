@@ -41,7 +41,8 @@ async function loadSpawanieCSV() {
 export default function Welding() {
     const [totalLength, setTotalLength] = useState("");
     const [result, setResult] = useState("");
-    const [weldType, setWeldType] = useState("pachwina");
+
+    const [weldType, setWeldType] = useState("pachwina_a");
     const [weldSize, setWeldSize] = useState("");
     const [weldPosition, setWeldPosition] = useState("PA");
     const [loading, setLoading] = useState(false);
@@ -49,10 +50,26 @@ export default function Welding() {
     const [table, setTable] = useState([]);
     const [types, setTypes] = useState([]);
 
+    const getDisplayTypes = () => {
+        const out = [];
+
+        out.push({ key: "pachwina_a", label: "pachwina a" });
+        out.push({
+            key: "pachwina_z",
+            label: "pachwina z",
+        });
+
+        types.forEach((t) => {
+            if (t.toLowerCase() === "pachwina") return;
+            out.push({ key: t, label: t });
+        });
+        return out;
+    };
+
     useEffect(() => {
         setTotalLength("");
         setResult("");
-        setWeldType("pachwina");
+        setWeldType("pachwina_a");
         setWeldSize("");
         setWeldPosition("PA");
 
@@ -60,7 +77,12 @@ export default function Welding() {
             const { types: t, table: tbl } = await loadSpawanieCSV();
             setTypes(t);
             setTable(tbl);
-            setWeldType(t.includes("pachwina") ? "pachwina" : t[0] || "");
+
+            if (t.includes("pachwina")) {
+                setWeldType("pachwina_a");
+            } else {
+                setWeldType(t[0] || "pachwina_a");
+            }
         }
 
         init();
@@ -111,8 +133,11 @@ export default function Welding() {
         if (!pos) return 1.0;
         const map = {
             PA: 1.0,
+            PB: 1.0,
             PF: 1.5,
+            PG: 1.5,
             PC: 1.6,
+            PD: 1.6,
             PE: 2.0,
         };
         return map[pos] ?? 1.0;
@@ -142,12 +167,33 @@ export default function Welding() {
         }
 
         setLoading(true);
-        const baseMultiplier = getMultiplierFromTable(sizeValue, weldType);
+
+        let lookupSize = sizeValue;
+        let lookupColumn = weldType;
+
+        if (weldType === "pachwina_a" || weldType === "pachwina_z") {
+            lookupColumn = "pachwina";
+            if (weldType === "pachwina_z") {
+                lookupSize = sizeValue / 1.41;
+            } else {
+                lookupSize = sizeValue;
+            }
+        } else {
+            lookupColumn = weldType;
+            lookupSize = sizeValue;
+        }
+
+        const lookupSizeRounded = Math.round(lookupSize * 1000) / 1000;
+
+        const baseMultiplier = getMultiplierFromTable(
+            lookupSizeRounded,
+            lookupColumn
+        );
         setLoading(false);
 
         if (baseMultiplier === null || baseMultiplier === undefined) {
             setResult(
-                "Brak wartości normatywowej dla wybranego typu/wielkości spoiny."
+                "Brak wartości normatywnej dla wybranego typu/wielkości spoiny (po przeliczeniu, jeśli dotyczy)."
             );
             return;
         }
@@ -157,15 +203,28 @@ export default function Welding() {
         const timeHours =
             (totalLengthValue / 1000) * baseMultiplier * positionFactor;
 
+        let chosenLabel = weldType;
+        if (weldType === "pachwina_a") chosenLabel = "pachwina a";
+        if (weldType === "pachwina_z") chosenLabel = "pachwina z";
+
+        let extraNote = "";
+        if (weldType === "pachwina_z") {
+            extraNote = `(wielkość spoiny ${sizeValue} )`;
+        }
+
         setResult(
-            `Szacowany czas spawania (${weldType}) w pozycji ${weldPosition}: ${timeHours.toFixed(2)} h`
+            `Szacowany czas spawania (${chosenLabel}) w pozycji ${weldPosition}: ${timeHours.toFixed(
+                2
+            )} h.`
         );
     }
 
     function handleClear() {
         setTotalLength("");
         setResult("");
-        setWeldType(types.includes("pachwina") ? "pachwina" : types[0] || "");
+        setWeldType(
+            types.includes("pachwina") ? "pachwina_a" : types[0] || "pachwina_a"
+        );
         setWeldSize("");
         setWeldPosition("PA");
     }
@@ -174,6 +233,8 @@ export default function Welding() {
         onEnter: handleCalculate,
         onEscape: handleClear,
     });
+
+    const displayTypes = getDisplayTypes();
 
     return (
         <>
@@ -184,9 +245,9 @@ export default function Welding() {
                         value={weldType}
                         onChange={(e) => setWeldType(e.target.value)}
                     >
-                        {types.map((t) => (
-                            <option key={t} value={t}>
-                                {t}
+                        {displayTypes.map((t) => (
+                            <option key={t.key} value={t.key}>
+                                {t.label}
                             </option>
                         ))}
                     </select>
@@ -198,9 +259,12 @@ export default function Welding() {
                         value={weldPosition}
                         onChange={(e) => setWeldPosition(e.target.value)}
                     >
-                        <option value="PA">PA,PB</option>
-                        <option value="PF">PF,PG</option>
-                        <option value="PC">PC,PD</option>
+                        <option value="PA">PA</option>
+                        <option value="PA">PB</option>
+                        <option value="PF">PF</option>
+                        <option value="PF">PG</option>
+                        <option value="PC">PC</option>
+                        <option value="PC">PD</option>
                         <option value="PE">PE</option>
                     </select>
                 </label>
