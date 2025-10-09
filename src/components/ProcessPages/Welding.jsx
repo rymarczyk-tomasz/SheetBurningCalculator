@@ -53,10 +53,10 @@ export default function Welding() {
     const getDisplayTypes = () => {
         const out = [];
 
-        out.push({ key: "pachwina_a", label: "pachwina a" });
+        out.push({ key: "pachwina_a", label: "Pachwina a" });
         out.push({
             key: "pachwina_z",
-            label: "pachwina z",
+            label: "Pachwina z",
         });
 
         types.forEach((t) => {
@@ -204,8 +204,8 @@ export default function Welding() {
             (totalLengthValue / 1000) * baseMultiplier * positionFactor;
 
         let chosenLabel = weldType;
-        if (weldType === "pachwina_a") chosenLabel = "pachwina a";
-        if (weldType === "pachwina_z") chosenLabel = "pachwina z";
+        if (weldType === "pachwina_a") chosenLabel = "Pachwina a";
+        if (weldType === "pachwina_z") chosenLabel = "Pachwina z";
 
         let extraNote = "";
         if (weldType === "pachwina_z") {

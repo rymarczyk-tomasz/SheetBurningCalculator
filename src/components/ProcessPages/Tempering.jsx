@@ -9,6 +9,7 @@ export default function Tempering() {
     const [thickness, setThickness] = useState("");
     const [result, setResult] = useState(null);
     const [csvData, setCsvData] = useState(null);
+    const [clearCounter, setClearCounter] = useState(0);
 
     useEffect(() => {
         fetch("/SheetBurningCalculator/1000033414_20250702101659.csv")
@@ -80,6 +81,7 @@ export default function Tempering() {
         setMass("");
         setThickness("");
         setResult(null);
+        setClearCounter((c) => c + 1);
     };
 
     const handleMassUpdate = (value) => {
@@ -111,8 +113,11 @@ export default function Tempering() {
             <button onClick={handleClear}>Wyczyść</button>
             <MassCalculator
                 onMassUpdate={handleMassUpdate}
+                onThicknessUpdate={setThickness}
+                thickness={thickness}
                 isCutting={false}
                 showRodShape={true}
+                clearSignal={clearCounter}
             />
             <Result result={result} />
         </>
