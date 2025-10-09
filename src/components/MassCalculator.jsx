@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import InputField from "./InputField";
 import ShapeSelector from "./ShapeSelector";
 import PropTypes from "prop-types";
 
 export default function MassCalculator({
     onMassUpdate,
+    onThicknessUpdate,
+    thickness: parentThickness = "",
     isCutting = false,
     showRodShape = false,
+    clearSignal = 0,
 }) {
     const [shape, setShape] = useState("rectangle");
     const [length, setLength] = useState("");
@@ -14,20 +17,45 @@ export default function MassCalculator({
     const [outerDiameter, setOuterDiameter] = useState("");
     const [innerDiameter, setInnerDiameter] = useState("");
     const [totalLength, setTotalLength] = useState("");
-    const [thickness, setThickness] = useState("");
+    const [thickness, setThickness] = useState(parentThickness || "");
     const [rodDiameter, setRodDiameter] = useState("");
     const [rodLength, setRodLength] = useState("");
     const [calculatedMass, setCalculatedMass] = useState(null);
     const density = 7.86;
 
-    const handleCalculate = () => {
+    useEffect(() => {
+        setThickness(parentThickness || "");
+    }, [parentThickness]);
+
+    useEffect(() => {
+        handleClearInternal();
+    }, [clearSignal]);
+
+    useEffect(() => {
+        if (onThicknessUpdate) {
+            onThicknessUpdate(thickness);
+        }
+    }, [thickness, onThicknessUpdate]);
+
+    useEffect(() => {
+        calculateAndNotify();
+    }, [
+        shape,
+        length,
+        width,
+        outerDiameter,
+        innerDiameter,
+        totalLength,
+        thickness,
+        rodDiameter,
+        rodLength,
+    ]);
+
+    const calculateAndNotify = () => {
         let mass = 0;
+        let valid = true;
 
         if (shape === "rectangle") {
-            if (!length || !width || !thickness) {
-                setCalculatedMass("Uzupełnij długość, szerokość i grubość.");
-                return;
-            }
             const lengthVal = parseFloat(length);
             const widthVal = parseFloat(width);
             const thicknessVal = parseFloat(thickness);
@@ -40,23 +68,16 @@ export default function MassCalculator({
                 widthVal <= 0 ||
                 thicknessVal <= 0
             ) {
-                setCalculatedMass(
-                    "Podaj poprawne, dodatnie wartości długości, szerokości i grubości."
-                );
-                return;
+                valid = false;
+            } else {
+                mass =
+                    ((lengthVal / 10) *
+                        (widthVal / 10) *
+                        (thicknessVal / 10) *
+                        density) /
+                    1000;
             }
-
-            mass =
-                ((lengthVal / 10) *
-                    (widthVal / 10) *
-                    (thicknessVal / 10) *
-                    density) /
-                1000;
         } else if (shape === "circle" || shape === "semicircle") {
-            if (!outerDiameter || !thickness) {
-                setCalculatedMass("Uzupełnij średnicę zewnętrzną i grubość.");
-                return;
-            }
             const outerDiameterVal = parseFloat(outerDiameter);
             const innerDiameterVal = parseFloat(innerDiameter) || 0;
             const thicknessVal = parseFloat(thickness);
@@ -67,27 +88,20 @@ export default function MassCalculator({
                 outerDiameterVal <= 0 ||
                 thicknessVal <= 0
             ) {
-                setCalculatedMass(
-                    "Podaj poprawne wartości średnicy zewnętrznej i grubości."
-                );
-                return;
-            }
+                valid = false;
+            } else {
+                const outerRadius = outerDiameterVal / 2;
+                const innerRadius = innerDiameterVal / 2;
 
-            const outerRadius = outerDiameterVal / 2;
-            const innerRadius = innerDiameterVal / 2;
-
-            let area =
-                Math.PI *
-                (outerRadius * outerRadius - innerRadius * innerRadius);
-            if (shape === "semicircle") {
-                area /= 2;
+                let area =
+                    Math.PI *
+                    (outerRadius * outerRadius - innerRadius * innerRadius);
+                if (shape === "semicircle") {
+                    area /= 2;
+                }
+                mass = ((area / 100) * (thicknessVal / 10) * density) / 1000;
             }
-            mass = ((area / 100) * (thicknessVal / 10) * density) / 1000;
         } else if (shape === "totalLength") {
-            if (!totalLength || !thickness) {
-                setCalculatedMass("Uzupełnij całkowitą długość i grubość.");
-                return;
-            }
             const totalLengthVal = parseFloat(totalLength);
             const thicknessVal = parseFloat(thickness);
             if (
@@ -96,45 +110,44 @@ export default function MassCalculator({
                 totalLengthVal <= 0 ||
                 thicknessVal <= 0
             ) {
-                setCalculatedMass(
-                    "Podaj poprawną, dodatnią całkowitą długość i grubość."
-                );
-                return;
+                valid = false;
+            } else {
+                mass =
+                    ((totalLengthVal / 10) *
+                        (thicknessVal / 10) *
+                        0.1 *
+                        density) /
+                    1000;
             }
-            mass =
-                ((totalLengthVal / 10) * (thicknessVal / 10) * 0.1 * density) /
-                1000;
         } else if (shape === "rod") {
-            if (!rodDiameter || !rodLength) {
-                setCalculatedMass("Uzupełnij średnicę i długość pręta.");
-                return;
-            }
             const rodDiameterVal = parseFloat(rodDiameter);
             const rodLengthVal = parseFloat(rodLength);
-
             if (
                 isNaN(rodDiameterVal) ||
                 isNaN(rodLengthVal) ||
                 rodDiameterVal <= 0 ||
                 rodLengthVal <= 0
             ) {
-                setCalculatedMass(
-                    "Podaj poprawne wartości średnicy i długości pręta."
-                );
-                return;
+                valid = false;
+            } else {
+                const rodRadius = rodDiameterVal / 2;
+                const rodArea = Math.PI * rodRadius * rodRadius;
+                mass = ((rodArea / 100) * (rodLengthVal / 10) * density) / 1000;
             }
+        }
 
-            const rodRadius = rodDiameterVal / 2;
-            const rodArea = Math.PI * rodRadius * rodRadius;
-            mass = ((rodArea / 100) * (rodLengthVal / 10) * density) / 1000;
+        if (!valid) {
+            setCalculatedMass(null);
+
+            return;
         }
 
         const calculatedValue = mass.toFixed(2);
         setCalculatedMass(`Masa detalu: ${calculatedValue} kg`);
-        onMassUpdate(calculatedValue);
+        onMassUpdate?.(calculatedValue);
     };
 
-    const handleClear = () => {
+    const handleClearInternal = () => {
         setLength("");
         setWidth("");
         setOuterDiameter("");
@@ -144,6 +157,10 @@ export default function MassCalculator({
         setRodDiameter("");
         setRodLength("");
         setCalculatedMass(null);
+
+        if (onThicknessUpdate) onThicknessUpdate("");
+
+        onMassUpdate?.("");
     };
 
     return (
@@ -246,8 +263,6 @@ export default function MassCalculator({
                 </>
             )}
 
-            <button onClick={handleCalculate}>Oblicz masę</button>
-            <button onClick={handleClear}>Wyczyść</button>
             {calculatedMass && <p>{calculatedMass}</p>}
         </>
     );
@@ -255,6 +270,9 @@ export default function MassCalculator({
 
 MassCalculator.propTypes = {
     onMassUpdate: PropTypes.func.isRequired,
+    onThicknessUpdate: PropTypes.func,
+    thickness: PropTypes.string,
     isCutting: PropTypes.bool,
     showRodShape: PropTypes.bool,
+    clearSignal: PropTypes.number,
 };

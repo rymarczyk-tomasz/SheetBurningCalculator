@@ -9,6 +9,7 @@ export default function Nitriding() {
     const [thickness, setThickness] = useState("");
     const [result, setResult] = useState(null);
     const [csvData, setCsvData] = useState(null);
+    const [clearCounter, setClearCounter] = useState(0);
 
     useEffect(() => {
         fetch("/SheetBurningCalculator/azotowanie.csv")
@@ -91,6 +92,7 @@ export default function Nitriding() {
         setMass("");
         setThickness("");
         setResult(null);
+        setClearCounter((c) => c + 1);
     };
 
     const handleMassUpdate = (value) => {
@@ -109,14 +111,14 @@ export default function Nitriding() {
                 label="Masa detalu (kg):"
                 value={mass}
                 onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg, jezeli nie znasz masy, uzyj kalkulatora poniżej"
+                placeholder="Wpisz masę w kg, jeżeli nie znasz masy, użyj kalkulatora poniżej"
             />
             <InputField
                 id="thickness"
                 label="Grubość warstwy azotowanej [mm]:"
                 value={thickness}
                 onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość warstwy azotowanej w mm"
+                placeholder="Wpisz grubość warstwy azotowanej w mm (ręcznie)"
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
@@ -125,6 +127,7 @@ export default function Nitriding() {
                 onMassUpdate={handleMassUpdate}
                 isCutting={false}
                 showRodShape={true}
+                clearSignal={clearCounter}
             />
 
             <Result result={result} />

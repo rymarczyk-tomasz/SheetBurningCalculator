@@ -9,6 +9,7 @@ export default function Carburizing() {
     const [thickness, setThickness] = useState("");
     const [result, setResult] = useState(null);
     const [csvData, setCsvData] = useState(null);
+    const [clearCounter, setClearCounter] = useState(0);
 
     useEffect(() => {
         fetch("/SheetBurningCalculator/nawęglanie.csv")
@@ -60,6 +61,16 @@ export default function Carburizing() {
         const massVal = parseFloat(mass);
         const thicknessVal = parseFloat(thickness);
 
+        if (
+            isNaN(massVal) ||
+            isNaN(thicknessVal) ||
+            massVal <= 0 ||
+            thicknessVal <= 0
+        ) {
+            setResult("Podaj poprawne, dodatnie wartości.");
+            return;
+        }
+
         const massIdx = findClosest(
             data.map((d) => d.mass),
             massVal
@@ -80,6 +91,7 @@ export default function Carburizing() {
         setMass("");
         setThickness("");
         setResult(null);
+        setClearCounter((c) => c + 1);
     };
 
     const handleMassUpdate = (value) => {
@@ -98,21 +110,23 @@ export default function Carburizing() {
                 label="Masa detalu (kg):"
                 value={mass}
                 onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg, jezeli nie znasz masy, uzyj kalkulatora poniżej"
+                placeholder="Wpisz masę w kg, jeżeli nie znasz masy, użyj kalkulatora poniżej"
             />
             <InputField
                 id="thickness"
                 label="Grubość warstwy nawęglanej Eht [mm]:"
                 value={thickness}
                 onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość warstwy nawęglanej Eht w mm"
+                placeholder="Wpisz grubość warstwy nawęglanej Eht w mm (ręcznie)"
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
+
             <MassCalculator
                 onMassUpdate={handleMassUpdate}
                 isCutting={false}
                 showRodShape={true}
+                clearSignal={clearCounter}
             />
             <Result result={result} />
         </>

@@ -11,6 +11,7 @@ export default function Annealing() {
     const [result, setResult] = useState(null);
     const [csvData, setCsvData] = useState(null);
     const [furnace, setFurnace] = useState("MAAG");
+    const [clearCounter, setClearCounter] = useState(0);
 
     useEffect(() => {
         if (furnace === "MAAG") {
@@ -106,6 +107,7 @@ export default function Annealing() {
         setMass("");
         setThickness("");
         setResult(null);
+        setClearCounter((c) => c + 1);
     };
 
     const handleMassUpdate = (value) => {
@@ -149,7 +151,10 @@ export default function Annealing() {
             <button onClick={handleClear}>Wyczyść</button>
             <MassCalculator
                 onMassUpdate={handleMassUpdate}
+                onThicknessUpdate={setThickness}
+                thickness={thickness}
                 showRodShape={true}
+                clearSignal={clearCounter}
             />
             <Result result={result} />
         </>
