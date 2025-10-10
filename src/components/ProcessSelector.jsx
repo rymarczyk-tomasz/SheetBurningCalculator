@@ -15,6 +15,7 @@ const processes = [
     { value: "straightening", label: "Prostowanie" },
     { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
     { value: "welding", label: "Spawanie ręczne MAG-135" },
+    { value: "pipeSchedule", label: "Rozmiar rury" },
 ];
 
 const ProcessSelector = ({ process, setProcess }) => {

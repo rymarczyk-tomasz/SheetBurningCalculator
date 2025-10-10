@@ -260,7 +260,7 @@ export default function Welding() {
                         onChange={(e) => setWeldPosition(e.target.value)}
                     >
                         <option value="PA">PA</option>
-                        <option value="PA">PB</option>
+                        <option value="PB">PB</option>
                         <option value="PF">PF</option>
                         <option value="PF">PG</option>
                         <option value="PC">PC</option>
