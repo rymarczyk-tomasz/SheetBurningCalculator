@@ -188,7 +188,7 @@ export default function PipeSchedule() {
             <div className="pipe-schedule-container">
                 <div className="form-group">
                     <label htmlFor="nominalSize">
-                        Nominalna wielkość rury (np. 1/4 lub 0.25):
+                        Nominalna wielkość rury:
                     </label>
                     <input
                         type="text"
