@@ -17,7 +17,7 @@ import Straightening from "./components/ProcessPages/Straightening";
 import BevelingMilling from "./components/ProcessPages/BevelingMilling";
 import Welding from "./components/ProcessPages/Welding";
 import useKeyShortcuts from "./hooks/useKeyShortcuts";
-
+import PipeSchedule from "./components/ProcessPages/PipeSchedule";
 import { burningCalculator } from "./utils/calculators/burningCalculator";
 import { sawCalculator } from "./utils/calculators/sawCalculator";
 import { waterjetCalculator } from "./utils/calculators/waterjetCalculator";
@@ -202,6 +202,7 @@ function App() {
                 {process === "straightening" && <Straightening />}
                 {process === "bevelingMilling" && <BevelingMilling />}
                 {process === "welding" && <Welding />}
+                {process === "pipeSchedule" && <PipeSchedule />}
             </div>
         </div>
     );
