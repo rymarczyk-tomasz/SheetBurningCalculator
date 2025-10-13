@@ -3,7 +3,6 @@ import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 
-// Conversion map: decimal/fraction to nominal size
 const nominalSizeMap = {
     0.25: "1/4",
     0.375: "3/8",
@@ -56,7 +55,6 @@ async function loadPipeCSV() {
 
         const header = lines[0].split(",").map((h) => h.trim());
 
-        // Skip "Outside Diameter" column (index 1)
         const scheduleHeaders = header.slice(2);
 
         const parsed = [];
@@ -107,7 +105,6 @@ export default function PipeSchedule() {
             setPipeData(data);
             setLoading(false);
 
-            // Set first schedule as default if available
             if (schs.length > 0) {
                 setSchedule(schs[0]);
             }
@@ -116,19 +113,16 @@ export default function PipeSchedule() {
         init();
     }, []);
 
-    // Normalize user input to standard nominal size
     const normalizeNominalSize = (input) => {
         if (!input) return null;
 
         const trimmed = input.trim();
 
-        // Check if it's already in the data (exact match)
         const exact = pipeData.find(
             (d) => d.nominalSize.toLowerCase() === trimmed.toLowerCase()
         );
         if (exact) return exact.nominalSize;
 
-        // Try decimal to fraction conversion
         const decimal = parseFloat(trimmed);
         if (!isNaN(decimal)) {
             const key = decimal.toString();
@@ -141,7 +135,6 @@ export default function PipeSchedule() {
             }
         }
 
-        // If we get here, the size doesn't exist
         return null;
     };
 
@@ -205,7 +198,7 @@ export default function PipeSchedule() {
             <div className="pipe-schedule-container">
                 <div className="form-group">
                     <label htmlFor="nominalSize">
-                        Nominalna wielkość rury (np. 1/4 lub 0.25):
+                        Nominalna wielkość Rury:
                     </label>
                     <input
                         type="text"
