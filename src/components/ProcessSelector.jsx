@@ -15,7 +15,7 @@ const processes = [
     { value: "straightening", label: "Prostowanie" },
     { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
     { value: "welding", label: "Spawanie ręczne MAG-135" },
-    { value: "pipeSchedule", label: "Rozmiar rury" },
+    { value: "pipeSchedule", label: "Rury wg ASME B36.10/19" },
 ];
 
 const ProcessSelector = ({ process, setProcess }) => {
