@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 
-const nominalSizeMap = {
+const NOMINAL_SIZE_MAP = {
     0.25: "1/4",
     0.375: "3/8",
     0.5: "1/2",
@@ -45,44 +44,37 @@ async function loadPipeCSV() {
     try {
         const res = await fetch("/SheetBurningCalculator/pipe_diametes.csv");
         if (!res.ok) throw new Error("Nie można załadować pliku CSV");
-        const text = await res.text();
-        const lines = text
-            .split(/\r?\n/)
-            .map((l) => l.trim())
-            .filter((l) => l);
 
+        const text = await res.text();
+        const lines = text.split(/\r?\n/).filter((l) => l.trim());
         if (!lines.length) return { schedules: [], data: [] };
 
         const header = lines[0].split(",").map((h) => h.trim());
-
         const scheduleHeaders = header.slice(2);
 
-        const parsed = [];
-        for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split(",").map((c) => c.trim());
-            const nominalSize = cols[0];
-            const outerDiameter = parseFloat(cols[1]);
+        const data = lines
+            .slice(1)
+            .map((line) => {
+                const cols = line.split(",").map((c) => c.trim());
+                const [nominalSize, outerDiamStr] = cols;
+                if (!nominalSize) return null;
 
-            if (!nominalSize) continue;
+                const values = {};
+                header.slice(2).forEach((scheduleLabel, idx) => {
+                    const val = cols[idx + 2];
+                    values[scheduleLabel] =
+                        val && val !== "" ? parseFloat(val) : null;
+                });
 
-            const values = {};
-            for (let j = 2; j < header.length; j++) {
-                const scheduleLabel = header[j];
-                const v =
-                    cols[j] === "" || cols[j] === undefined
-                        ? null
-                        : parseFloat(cols[j]);
-                values[scheduleLabel] = isNaN(v) ? null : v;
-            }
+                return {
+                    nominalSize,
+                    outerDiameter: parseFloat(outerDiamStr) || null,
+                    values,
+                };
+            })
+            .filter(Boolean);
 
-            parsed.push({
-                nominalSize,
-                outerDiameter: isNaN(outerDiameter) ? null : outerDiameter,
-                values,
-            });
-        }
-
-        return { schedules: scheduleHeaders, data: parsed };
+        return { schedules: scheduleHeaders, data };
     } catch (e) {
         console.error("Błąd podczas ładowania pipe_diametes.csv:", e);
         return { schedules: [], data: [] };
@@ -98,49 +90,33 @@ export default function PipeSchedule() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        async function init() {
+        (async () => {
             setLoading(true);
             const { schedules: schs, data } = await loadPipeCSV();
             setSchedules(schs);
             setPipeData(data);
+            setSchedule(schs[0] || "Sch40");
             setLoading(false);
-
-            if (schs.length > 0) {
-                setSchedule(schs[0]);
-            }
-        }
-
-        init();
+        })();
     }, []);
 
     const normalizeNominalSize = (input) => {
         if (!input) return null;
 
-        const trimmed = input.trim().replace(",", ".");
+        const normalized = input.trim().replace(",", ".");
 
         const exact = pipeData.find(
-            (d) => d.nominalSize.toLowerCase() === trimmed.toLowerCase()
+            (d) => d.nominalSize.toLowerCase() === normalized.toLowerCase()
         );
         if (exact) return exact.nominalSize;
 
-        const decimal = parseFloat(trimmed);
-        if (!isNaN(decimal)) {
-            if (nominalSizeMap[decimal]) {
-                const mapped = nominalSizeMap[decimal];
-                const found = pipeData.find(
-                    (d) => d.nominalSize.toLowerCase() === mapped.toLowerCase()
-                );
-                if (found) return found.nominalSize;
-            }
-
-            const key = decimal.toString();
-            if (nominalSizeMap[key]) {
-                const mapped = nominalSizeMap[key];
-                const found = pipeData.find(
-                    (d) => d.nominalSize.toLowerCase() === mapped.toLowerCase()
-                );
-                if (found) return found.nominalSize;
-            }
+        const decimal = parseFloat(normalized);
+        if (!isNaN(decimal) && NOMINAL_SIZE_MAP[decimal]) {
+            const mapped = NOMINAL_SIZE_MAP[decimal];
+            const found = pipeData.find(
+                (d) => d.nominalSize.toLowerCase() === mapped.toLowerCase()
+            );
+            if (found) return found.nominalSize;
         }
 
         return null;
@@ -152,13 +128,7 @@ export default function PipeSchedule() {
             return;
         }
 
-        if (!schedule) {
-            setResult("Proszę wybrać typ Schedule.");
-            return;
-        }
-
         const normalized = normalizeNominalSize(nominalSize);
-
         if (!normalized) {
             setResult("Nie znaleziono wielkości rury w bazie danych.");
             return;
@@ -168,21 +138,14 @@ export default function PipeSchedule() {
             (d) => d.nominalSize.toLowerCase() === normalized.toLowerCase()
         );
 
-        if (!pipeEntry) {
-            setResult("Nie znaleziono wielkości rury w bazie danych.");
-            return;
-        }
-
-        const thickness = pipeEntry.values[schedule];
-
-        if (thickness === null || thickness === undefined) {
+        const thickness = pipeEntry?.values[schedule];
+        if (!thickness) {
             setResult("Brak grubości ścianki dla tej rury.");
             return;
         }
 
-        const outerDiam = pipeEntry.outerDiameter;
-        const diamDisplay = outerDiam
-            ? `${outerDiam}x${thickness}`
+        const diamDisplay = pipeEntry.outerDiameter
+            ? `${pipeEntry.outerDiameter}x${thickness}`
             : `${thickness}`;
 
         setResult(
@@ -192,14 +155,11 @@ export default function PipeSchedule() {
 
     const handleClear = () => {
         setNominalSize("");
-        setSchedule(schedules.length > 0 ? schedules[0] : "Sch40");
+        setSchedule(schedules[0] || "Sch40");
         setResult("");
     };
 
-    useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
-    });
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
