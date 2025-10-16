@@ -116,7 +116,7 @@ export default function PipeSchedule() {
     const normalizeNominalSize = (input) => {
         if (!input) return null;
 
-        const trimmed = input.trim();
+        const trimmed = input.trim().replace(",", ".");
 
         const exact = pipeData.find(
             (d) => d.nominalSize.toLowerCase() === trimmed.toLowerCase()
@@ -125,6 +125,14 @@ export default function PipeSchedule() {
 
         const decimal = parseFloat(trimmed);
         if (!isNaN(decimal)) {
+            if (nominalSizeMap[decimal]) {
+                const mapped = nominalSizeMap[decimal];
+                const found = pipeData.find(
+                    (d) => d.nominalSize.toLowerCase() === mapped.toLowerCase()
+                );
+                if (found) return found.nominalSize;
+            }
+
             const key = decimal.toString();
             if (nominalSizeMap[key]) {
                 const mapped = nominalSizeMap[key];
@@ -198,14 +206,14 @@ export default function PipeSchedule() {
             <div className="pipe-schedule-container">
                 <div className="form-group">
                     <label htmlFor="nominalSize">
-                        Nominalna wielkość Rury:
+                        Nominalna wielkość rury (np. 1/4, 0.25 lub 0,25):
                     </label>
                     <input
                         type="text"
                         id="nominalSize"
                         value={nominalSize}
                         onChange={(e) => setNominalSize(e.target.value)}
-                        placeholder='Wpisz wielkość (np. "1/4", "1 1/2", "0.5")'
+                        placeholder='Wpisz wielkość (np. "1/4", "2 1/2", "2.5", "2,5")'
                     />
                 </div>
 
