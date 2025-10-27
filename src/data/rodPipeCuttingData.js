@@ -23,4 +23,9 @@ export const rodCuttingData = [
     { minDiameter: 520, maxDiameter: 549, time: 3.4 },
     { minDiameter: 550, maxDiameter: 599, time: 4 },
     { minDiameter: 600, maxDiameter: 650, time: 5 },
+    { minDiameter: 651, maxDiameter: 699, time: 6 },
+    { minDiameter: 700, maxDiameter: 749, time: 7 },
+    { minDiameter: 750, maxDiameter: 799, time: 8 },
+    { minDiameter: 800, maxDiameter: 849, time: 9 },
+    { minDiameter: 850, maxDiameter: 900, time: 10 },
 ];
