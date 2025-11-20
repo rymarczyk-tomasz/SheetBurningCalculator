@@ -34,7 +34,6 @@ async function getBevelingMultiplier(thickness) {
             if (v.t === thickness) return v.m;
         }
 
-
         let lower = null,
             upper = null;
         for (const v of values) {
@@ -42,7 +41,6 @@ async function getBevelingMultiplier(thickness) {
             if (v.t > thickness && !upper) upper = v;
         }
         if (lower && upper) {
-
             return (
                 lower.m +
                 ((upper.m - lower.m) * (thickness - lower.t)) /
@@ -89,8 +87,11 @@ export default function Beveling() {
             return;
         }
 
+        const lookupThickness =
+            sideOption === "double" ? thicknessValue / 2 : thicknessValue;
+
         setLoading(true);
-        const multiplier = await getBevelingMultiplier(thicknessValue);
+        const multiplier = await getBevelingMultiplier(lookupThickness);
         setLoading(false);
 
         if (!multiplier) {
