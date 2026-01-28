@@ -87,11 +87,8 @@ export default function Beveling() {
             return;
         }
 
-        const lookupThickness =
-            sideOption === "double" ? thicknessValue / 2 : thicknessValue;
-
         setLoading(true);
-        const multiplier = await getBevelingMultiplier(lookupThickness);
+        const multiplier = await getBevelingMultiplier(thicknessValue);
         setLoading(false);
 
         if (!multiplier) {
@@ -109,14 +106,14 @@ export default function Beveling() {
                     value = calculateCircle(
                         outerDiameter,
                         innerDiameter,
-                        multiplier
+                        multiplier,
                     );
                     break;
                 case "semicircle":
                     value = calculateSemiCircle(
                         outerDiameter,
                         innerDiameter,
-                        multiplier
+                        multiplier,
                     );
                     break;
                 case "totalLength":
@@ -136,7 +133,7 @@ export default function Beveling() {
         }
 
         setResult(
-            `Czas fazowania (ukosowanie) (${sideOption === "single" ? "jednostronne" : "dwustronne"}): ${value.toFixed(2)} h`
+            `Czas fazowania (ukosowanie) (${sideOption === "single" ? "jednostronne" : "dwustronne"}): ${value.toFixed(2)} h`,
         );
     }
 
@@ -232,10 +229,10 @@ export default function Beveling() {
             )}
             <InputField
                 id="thickness"
-                label="Grubość blachy (mm):"
+                label="Wielkosć fazy (mm):"
                 value={thickness}
                 onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość w mm"
+                placeholder="Wpisz wielkość fazu w mm"
             />
             <button onClick={handleCalculate} disabled={loading}>
                 {loading ? "Obliczanie..." : "Oblicz"}
