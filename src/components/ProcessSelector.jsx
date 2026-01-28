@@ -6,7 +6,7 @@ const processes = [
     { value: "waterjet", label: "Cięcie wodą" },
     { value: "hardening", label: "Hartowanie" },
     { value: "nitriding", label: "Azotowanie" },
-    { value: "annealing", label: "Wyrzażanie" },
+    { value: "annealing", label: "Wyżarzanie" },
     { value: "tempering", label: "Ulepszanie cieplne" },
     { value: "carburizing", label: "Nawęglanie" },
     { value: "beveling", label: "Fazowanie" },
