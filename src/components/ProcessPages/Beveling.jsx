@@ -232,10 +232,10 @@ export default function Beveling() {
             )}
             <InputField
                 id="thickness"
-                label="Grubość blachy (mm):"
+                label="wielkosć fazy (mm):"
                 value={thickness}
                 onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość w mm"
+                placeholder="Wpisz wielkość fazu w mm"
             />
             <button onClick={handleCalculate} disabled={loading}>
                 {loading ? "Obliczanie..." : "Oblicz"}
