@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import GenericForm from "../GenericForm";
 
 const NOMINAL_SIZE_MAP = {
     0.25: "1/4",
@@ -164,33 +165,31 @@ export default function PipeSchedule() {
     return (
         <>
             <div className="pipe-schedule-container">
-                <div className="form-group">
-                    <label htmlFor="nominalSize">
-                        Nominalna wielkość rury (np. 1/4, 0.25 lub 0,25):
-                    </label>
-                    <input
-                        type="text"
-                        id="nominalSize"
-                        value={nominalSize}
-                        onChange={(e) => setNominalSize(e.target.value)}
-                        placeholder='Wpisz wielkość (np. "1/4", "2 1/2", "2.5", "2,5")'
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="schedule">Typ Schedule:</label>
-                    <select
-                        id="schedule"
-                        value={schedule}
-                        onChange={(e) => setSchedule(e.target.value)}
-                    >
-                        {schedules.map((sch) => (
-                            <option key={sch} value={sch}>
-                                {sch}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                <GenericForm
+                    fields={[
+                        {
+                            id: "nominalSize",
+                            label:
+                                "Nominalna wielkość rury (np. 1/4, 0.25 lub 0,25):",
+                            value: nominalSize,
+                            onChange: (e) => setNominalSize(e.target.value),
+                            placeholder:
+                                'Wpisz wielkość (np. "1/4", "2 1/2", "2.5", "2,5")',
+                            type: "text",
+                        },
+                        {
+                            id: "schedule",
+                            type: "select",
+                            label: "Typ Schedule:",
+                            value: schedule,
+                            onChange: (e) => setSchedule(e.target.value),
+                            options: schedules.map((sch) => ({
+                                value: sch,
+                                label: sch,
+                            })),
+                        },
+                    ]}
+                />
             </div>
 
             <button onClick={handleCalculate} disabled={loading}>

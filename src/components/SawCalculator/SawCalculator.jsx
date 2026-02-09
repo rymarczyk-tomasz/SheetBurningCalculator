@@ -1,5 +1,5 @@
 import React from "react";
-import InputField from "../InputField";
+import GenericForm from "../GenericForm";
 
 export default function SawCalculator({
     rodDiameter,
@@ -12,12 +12,17 @@ export default function SawCalculator({
 }) {
     return (
         <>
-            <InputField
-                id="diameter"
-                label="Wpisz średnicę pręta lub fi zew. rury w mm:"
-                value={rodDiameter}
-                onChange={(e) => setRodDiameter(e.target.value)}
-                placeholder="Wpisz średnicę pręta lub fi zew. rury w mm"
+            <GenericForm
+                fields={[
+                    {
+                        id: "diameter",
+                        label: "Wpisz średnicę pręta lub fi zew. rury w mm:",
+                        value: rodDiameter,
+                        onChange: (e) => setRodDiameter(e.target.value),
+                        placeholder:
+                            "Wpisz średnicę pręta lub fi zew. rury w mm",
+                    },
+                ]}
             />
 
             <button onClick={handleCalculate}>Oblicz</button>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import MassCalculator from "../MassCalculator";
+import GenericForm from "../GenericForm";
 
 export default function Nitriding() {
     const [mass, setMass] = useState("");
@@ -106,19 +106,25 @@ export default function Nitriding() {
 
     return (
         <>
-            <InputField
-                id="mass"
-                label="Masa detalu (kg):"
-                value={mass}
-                onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg, jeżeli nie znasz masy, użyj kalkulatora poniżej"
-            />
-            <InputField
-                id="thickness"
-                label="Grubość warstwy azotowanej [mm]:"
-                value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość warstwy azotowanej w mm (ręcznie)"
+            <GenericForm
+                fields={[
+                    {
+                        id: "mass",
+                        label: "Masa detalu (kg):",
+                        value: mass,
+                        onChange: (e) => setMass(e.target.value),
+                        placeholder:
+                            "Wpisz masę w kg, jeżeli nie znasz masy, użyj kalkulatora poniżej",
+                    },
+                    {
+                        id: "thickness",
+                        label: "Grubość warstwy azotowanej [mm]:",
+                        value: thickness,
+                        onChange: (e) => setThickness(e.target.value),
+                        placeholder:
+                            "Wpisz grubość warstwy azotowanej w mm (ręcznie)",
+                    },
+                ]}
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>

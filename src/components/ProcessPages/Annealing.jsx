@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import { annealingKrometData } from "../../data/annealingKrometData";
 import MassCalculator from "../MassCalculator";
+import GenericForm from "../GenericForm";
 
 export default function Annealing() {
     const [mass, setMass] = useState("");
@@ -121,32 +121,37 @@ export default function Annealing() {
 
     return (
         <>
-            <div>
-                <label>Wybierz piec:&nbsp;</label>
-                <select
-                    value={furnace}
-                    onChange={(e) => setFurnace(e.target.value)}
-                >
-                    <option value="MAAG">MAAG</option>
-                    <option value="KROMET">KROMET</option>
-                </select>
-            </div>
-            <InputField
-                id="mass"
-                label="Masa detalu (kg):"
-                value={mass}
-                onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg"
+            <GenericForm
+                fields={[
+                    {
+                        id: "furnace",
+                        type: "select",
+                        label: "Wybierz piec:",
+                        value: furnace,
+                        onChange: (e) => setFurnace(e.target.value),
+                        wrapperClassName: "form-group",
+                        options: [
+                            { value: "MAAG", label: "MAAG" },
+                            { value: "KROMET", label: "KROMET" },
+                        ],
+                    },
+                    {
+                        id: "mass",
+                        label: "Masa detalu (kg):",
+                        value: mass,
+                        onChange: (e) => setMass(e.target.value),
+                        placeholder: "Wpisz masę w kg",
+                    },
+                    {
+                        id: "thickness",
+                        label: "Grubość materiału (mm):",
+                        value: thickness,
+                        onChange: (e) => setThickness(e.target.value),
+                        placeholder: "Wpisz grubość w mm",
+                        showWhen: () => furnace === "MAAG",
+                    },
+                ]}
             />
-            {furnace === "MAAG" && (
-                <InputField
-                    id="thickness"
-                    label="Grubość materiału (mm):"
-                    value={thickness}
-                    onChange={(e) => setThickness(e.target.value)}
-                    placeholder="Wpisz grubość w mm"
-                />
-            )}
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
             <MassCalculator

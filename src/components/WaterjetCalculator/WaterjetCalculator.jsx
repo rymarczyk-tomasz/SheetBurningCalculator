@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import ShapeSelector from "../ShapeSelector";
-import InputField from "../InputField";
 import Result from "../Result";
 import ExtraOptions from "../BurningCalculator/ExtraOptions";
+import GenericForm from "../GenericForm";
 
 export default function WaterjetCalculator({
     shape,
@@ -39,26 +39,27 @@ export default function WaterjetCalculator({
 
     return (
         <>
-            <div className="waterjet-type-group">
-                <label>
-                    <input
-                        type="radio"
-                        value="czarna"
-                        checked={waterjetType === "czarna"}
-                        onChange={() => setWaterjetType("czarna")}
-                    />
-                    Blacha czarna
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        value="nierdzewka"
-                        checked={waterjetType === "nierdzewka"}
-                        onChange={() => setWaterjetType("nierdzewka")}
-                    />
-                    Blacha nierdzewna
-                </label>
-            </div>
+            <GenericForm
+                fields={[
+                    {
+                        id: "waterjetType",
+                        type: "radio",
+                        value: waterjetType,
+                        onChange: (value) => setWaterjetType(value),
+                        wrapperClassName: "waterjet-type-group",
+                        options: [
+                            {
+                                value: "czarna",
+                                label: "Blacha czarna",
+                            },
+                            {
+                                value: "nierdzewka",
+                                label: "Blacha nierdzewna",
+                            },
+                        ],
+                    },
+                ]}
+            />
 
             <ShapeSelector
                 shape={shape}
@@ -83,60 +84,58 @@ export default function WaterjetCalculator({
                 )}
             </div>
 
-            {shape === "rectangle" && (
-                <>
-                    <InputField
-                        id="length"
-                        label="Długość boku A (mm):"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="width"
-                        label="Długość boku B (mm):"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {(shape === "circle" || shape === "semicircle") && (
-                <>
-                    <InputField
-                        id="outerDiameter"
-                        label="Fi zewnętrzne (mm):"
-                        value={outerDiameter}
-                        onChange={(e) => setOuterDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="innerDiameter"
-                        label="Fi wewnętrzne (mm):"
-                        value={innerDiameter}
-                        onChange={(e) => setInnerDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {shape === "totalLength" && (
-                <InputField
-                    id="totalLength"
-                    label="Całkowita długość boków (mm):"
-                    value={totalLength}
-                    onChange={(e) => setTotalLength(e.target.value)}
-                    placeholder="Wpisz całkowitą długość w mm"
-                />
-            )}
-
-            <InputField
-                id="thickness"
-                label="Grubość blachy (mm):"
-                value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość w mm"
+            <GenericForm
+                fields={[
+                    {
+                        id: "length",
+                        label: "Długość boku A (mm):",
+                        value: length,
+                        onChange: (e) => setLength(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () => shape === "rectangle",
+                    },
+                    {
+                        id: "width",
+                        label: "Długość boku B (mm):",
+                        value: width,
+                        onChange: (e) => setWidth(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () => shape === "rectangle",
+                    },
+                    {
+                        id: "outerDiameter",
+                        label: "Fi zewnętrzne (mm):",
+                        value: outerDiameter,
+                        onChange: (e) => setOuterDiameter(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () =>
+                            shape === "circle" || shape === "semicircle",
+                    },
+                    {
+                        id: "innerDiameter",
+                        label: "Fi wewnętrzne (mm):",
+                        value: innerDiameter,
+                        onChange: (e) => setInnerDiameter(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () =>
+                            shape === "circle" || shape === "semicircle",
+                    },
+                    {
+                        id: "totalLength",
+                        label: "Całkowita długość boków (mm):",
+                        value: totalLength,
+                        onChange: (e) => setTotalLength(e.target.value),
+                        placeholder: "Wpisz całkowitą długość w mm",
+                        showWhen: () => shape === "totalLength",
+                    },
+                    {
+                        id: "thickness",
+                        label: "Grubość blachy (mm):",
+                        value: thickness,
+                        onChange: (e) => setThickness(e.target.value),
+                        placeholder: "Wpisz grubość w mm",
+                    },
+                ]}
             />
 
             <button onClick={handleCalculate}>Oblicz</button>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import ShapeSelector from "../ShapeSelector";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import { calculateRectangle } from "../../utils/calculateRectangle";
 import { calculateCircle } from "../../utils/calculateCircle";
 import { calculateSemiCircle } from "../../utils/calculateSemiCircle";
 import { calculateTotalLength } from "../../utils/calculateTotalLength";
+import GenericForm from "../GenericForm";
 
 export default function BevelingMilling() {
     const [shape, setShape] = useState("rectangle");
@@ -99,84 +99,86 @@ export default function BevelingMilling() {
 
     return (
         <>
-            <div className="beveling-side-group">
-                <label className="beveling-side-label">
-                    <input
-                        type="radio"
-                        name="sideOption"
-                        value="single"
-                        checked={sideOption === "single"}
-                        onChange={() => setSideOption("single")}
-                    />
-                    Jednostronne
-                </label>
-                <label className="beveling-side-label">
-                    <input
-                        type="radio"
-                        name="sideOption"
-                        value="double"
-                        checked={sideOption === "double"}
-                        onChange={() => setSideOption("double")}
-                    />
-                    Dwustronne
-                </label>
-            </div>
+            <GenericForm
+                fields={[
+                    {
+                        id: "sideOption",
+                        type: "radio",
+                        value: sideOption,
+                        onChange: (value) => setSideOption(value),
+                        wrapperClassName: "beveling-side-group",
+                        options: [
+                            {
+                                value: "single",
+                                label: "Jednostronne",
+                                labelClassName: "beveling-side-label",
+                            },
+                            {
+                                value: "double",
+                                label: "Dwustronne",
+                                labelClassName: "beveling-side-label",
+                            },
+                        ],
+                    },
+                ]}
+            />
             <ShapeSelector
                 shape={shape}
                 setShape={setShape}
                 isCutting={false}
             />
-            {shape === "rectangle" && (
-                <>
-                    <InputField
-                        id="length"
-                        label="Długość boku A (mm):"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="width"
-                        label="Długość boku B (mm):"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-            {(shape === "circle" || shape === "semicircle") && (
-                <>
-                    <InputField
-                        id="outerDiameter"
-                        label="Fi zewnętrzne (mm):"
-                        value={outerDiameter}
-                        onChange={(e) => setOuterDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="innerDiameter"
-                        label="Fi wewnętrzne (mm):"
-                        value={innerDiameter}
-                        onChange={(e) => setInnerDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-            {shape === "totalLength" && (
-                <InputField
-                    id="totalLength"
-                    label="Całkowita długość boków (mm):"
-                    value={totalLength}
-                    onChange={(e) => setTotalLength(e.target.value)}
-                    placeholder="Wpisz całkowitą długość w mm"
-                />
-            )}
-            <InputField
-                id="thickness"
-                label="Grubość blachy (mm):"
-                value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość w mm"
+            <GenericForm
+                fields={[
+                    {
+                        id: "length",
+                        label: "Długość boku A (mm):",
+                        value: length,
+                        onChange: (e) => setLength(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () => shape === "rectangle",
+                    },
+                    {
+                        id: "width",
+                        label: "Długość boku B (mm):",
+                        value: width,
+                        onChange: (e) => setWidth(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () => shape === "rectangle",
+                    },
+                    {
+                        id: "outerDiameter",
+                        label: "Fi zewnętrzne (mm):",
+                        value: outerDiameter,
+                        onChange: (e) => setOuterDiameter(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () =>
+                            shape === "circle" || shape === "semicircle",
+                    },
+                    {
+                        id: "innerDiameter",
+                        label: "Fi wewnętrzne (mm):",
+                        value: innerDiameter,
+                        onChange: (e) => setInnerDiameter(e.target.value),
+                        placeholder: "Wpisz wymiar w mm",
+                        showWhen: () =>
+                            shape === "circle" || shape === "semicircle",
+                    },
+                    {
+                        id: "totalLength",
+                        label: "Całkowita długość boków (mm):",
+                        value: totalLength,
+                        onChange: (e) => setTotalLength(e.target.value),
+                        placeholder: "Wpisz całkowitą długość w mm",
+                        showWhen: () => shape === "totalLength",
+                    },
+                    {
+                        id: "thickness",
+                        label: "Grubość blachy (mm):",
+                        value: thickness,
+                        onChange: (e) => setThickness(e.target.value),
+                        placeholder: "Wpisz grubość w mm",
+                    },
+                ]}
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>

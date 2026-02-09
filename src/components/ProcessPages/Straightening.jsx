@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import GenericForm from "../GenericForm";
 
 export default function Straightening() {
     const [length, setLength] = useState("");
@@ -39,12 +39,16 @@ export default function Straightening() {
 
     return (
         <>
-            <InputField
-                id="length"
-                label="Długość dłuższego boku lub średnica (fi) [mm]:"
-                value={length}
-                onChange={(e) => setLength(e.target.value)}
-                placeholder="Wpisz długość lub fi w mm"
+            <GenericForm
+                fields={[
+                    {
+                        id: "length",
+                        label: "Długość dłuższego boku lub średnica (fi) [mm]:",
+                        value: length,
+                        onChange: (e) => setLength(e.target.value),
+                        placeholder: "Wpisz długość lub fi w mm",
+                    },
+                ]}
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import MassCalculator from "../MassCalculator";
+import GenericForm from "../GenericForm";
 
 export default function Tempering() {
     const [mass, setMass] = useState("");
@@ -95,19 +95,24 @@ export default function Tempering() {
 
     return (
         <>
-            <InputField
-                id="mass"
-                label="Masa detalu (kg):"
-                value={mass}
-                onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg, jezeli nie znasz masy, uzyj kalkulatora poniżej"
-            />
-            <InputField
-                id="thickness"
-                label="Grubość materiału (mm):"
-                value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
-                placeholder="Wpisz grubość w mm"
+            <GenericForm
+                fields={[
+                    {
+                        id: "mass",
+                        label: "Masa detalu (kg):",
+                        value: mass,
+                        onChange: (e) => setMass(e.target.value),
+                        placeholder:
+                            "Wpisz masę w kg, jezeli nie znasz masy, uzyj kalkulatora poniżej",
+                    },
+                    {
+                        id: "thickness",
+                        label: "Grubość materiału (mm):",
+                        value: thickness,
+                        onChange: (e) => setThickness(e.target.value),
+                        placeholder: "Wpisz grubość w mm",
+                    },
+                ]}
             />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import GenericForm from "../GenericForm";
 
 async function loadSpawanieCSV() {
     try {
@@ -235,55 +235,64 @@ export default function Welding() {
     });
 
     const displayTypes = getDisplayTypes();
+    const weldTypeOptions = displayTypes.map((t) => ({
+        value: t.key,
+        label: t.label,
+    }));
+    const weldPositionOptions = [
+        { value: "PA", label: "PA" },
+        { value: "PB", label: "PB" },
+        { value: "PF", label: "PF" },
+        { value: "PG", label: "PG" },
+        { value: "PC", label: "PC" },
+        { value: "PD", label: "PD" },
+        { value: "PE", label: "PE" },
+    ];
 
     return (
         <>
             <div className="welding-selectors">
-                <label>
-                    Rodzaj spoiny:
-                    <select
-                        value={weldType}
-                        onChange={(e) => setWeldType(e.target.value)}
-                    >
-                        {displayTypes.map((t) => (
-                            <option key={t.key} value={t.key}>
-                                {t.label}
-                            </option>
-                        ))}
-                    </select>
-                </label>
-
-                <label>
-                    Pozycja spawania:
-                    <select
-                        value={weldPosition}
-                        onChange={(e) => setWeldPosition(e.target.value)}
-                    >
-                        <option value="PA">PA</option>
-                        <option value="PB">PB</option>
-                        <option value="PF">PF</option>
-                        <option value="PF">PG</option>
-                        <option value="PC">PC</option>
-                        <option value="PC">PD</option>
-                        <option value="PE">PE</option>
-                    </select>
-                </label>
-
-                <InputField
-                    id="weldSize"
-                    label="Wielkość spoiny:"
-                    value={weldSize}
-                    onChange={(e) => setWeldSize(e.target.value)}
-                    placeholder="Wpisz wielkość spoiny"
+                <GenericForm
+                    fields={[
+                        {
+                            id: "weldType",
+                            type: "select",
+                            label: "Rodzaj spoiny:",
+                            value: weldType,
+                            onChange: (e) => setWeldType(e.target.value),
+                            wrapperClassName: "form-group",
+                            options: weldTypeOptions,
+                        },
+                        {
+                            id: "weldPosition",
+                            type: "select",
+                            label: "Pozycja spawania:",
+                            value: weldPosition,
+                            onChange: (e) => setWeldPosition(e.target.value),
+                            wrapperClassName: "form-group",
+                            options: weldPositionOptions,
+                        },
+                        {
+                            id: "weldSize",
+                            label: "Wielkość spoiny:",
+                            value: weldSize,
+                            onChange: (e) => setWeldSize(e.target.value),
+                            placeholder: "Wpisz wielkość spoiny",
+                        },
+                    ]}
                 />
             </div>
 
-            <InputField
-                id="totalLength"
-                label="Całkowita długość spawania (mm):"
-                value={totalLength}
-                onChange={(e) => setTotalLength(e.target.value)}
-                placeholder="Wpisz całkowitą długość spawania w mm"
+            <GenericForm
+                fields={[
+                    {
+                        id: "totalLength",
+                        label: "Całkowita długość spawania (mm):",
+                        value: totalLength,
+                        onChange: (e) => setTotalLength(e.target.value),
+                        placeholder: "Wpisz całkowitą długość spawania w mm",
+                    },
+                ]}
             />
 
             <div className="welding-actions">
