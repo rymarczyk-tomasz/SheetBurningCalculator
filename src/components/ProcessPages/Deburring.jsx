@@ -8,6 +8,13 @@ import { calculateCircle } from "../../utils/calculateCircle";
 import { calculateSemiCircle } from "../../utils/calculateSemiCircle";
 import { calculateTotalLength } from "../../utils/calculateTotalLength";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import { getDeburringFields } from "./Deburring.form";
+import {
+  clearCalculation,
+  loadCalculation,
+  saveCalculation,
+} from "../../utils/calculationStorage";
 
 export default function Deburring() {
   const [shape, setShape] = useState("rectangle");
@@ -22,6 +29,21 @@ export default function Deburring() {
   const [result, setResult] = useState("");
 
   useEffect(() => {
+    const stored = loadCalculation("deburring");
+    if (stored) {
+      setShape(stored.shape ?? "rectangle");
+      setLength(stored.length ?? "");
+      setWidth(stored.width ?? "");
+      setOuterDiameter(stored.outerDiameter ?? "");
+      setInnerDiameter(stored.innerDiameter ?? "");
+      setTotalLength(stored.totalLength ?? "");
+      setHoles(stored.holes ?? [{ diameter: "", count: "" }]);
+      setRectHoles(stored.rectHoles ?? [{ a: "", b: "", count: "" }]);
+      setResult(stored.result ?? "");
+      setExtraOptionsVisible(Boolean(stored.extraOptionsVisible));
+      return;
+    }
+
     setShape("rectangle");
     setLength("");
     setWidth("");
@@ -81,7 +103,20 @@ export default function Deburring() {
       value += (extraLength / 1000) * multiplier;
     }
 
-    setResult(`Czas gratowania: ${value.toFixed(2)} h`);
+    const message = `Czas gratowania: ${value.toFixed(2)} h`;
+    saveCalculation("deburring", {
+      shape,
+      length,
+      width,
+      outerDiameter,
+      innerDiameter,
+      totalLength,
+      holes,
+      rectHoles,
+      extraOptionsVisible,
+      result: message,
+    });
+    setResult(message);
   }
 
   function handleClear() {
@@ -93,12 +128,28 @@ export default function Deburring() {
     setHoles([{ diameter: "", count: "" }]);
     setRectHoles([{ a: "", b: "", count: "" }]);
     setResult("");
+    clearCalculation("deburring");
   }
 
   useKeyShortcuts({
     onEnter: handleCalculate,
     onEscape: handleClear,
   });
+
+  const fields = getDeburringFields({
+    shape,
+    length,
+    setLength,
+    width,
+    setWidth,
+    outerDiameter,
+    setOuterDiameter,
+    innerDiameter,
+    setInnerDiameter,
+    totalLength,
+    setTotalLength,
+  });
+  const { errors, hasErrors } = getFormErrors(fields);
 
   return (
     <>
@@ -116,51 +167,10 @@ export default function Deburring() {
           />
         )}
       </div>
-      <GenericForm
-        fields={[
-          {
-            id: "length",
-            label: "Długość boku A (mm):",
-            value: length,
-            onChange: (e) => setLength(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "width",
-            label: "Długość boku B (mm):",
-            value: width,
-            onChange: (e) => setWidth(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "outerDiameter",
-            label: "Fi zewnętrzne (mm):",
-            value: outerDiameter,
-            onChange: (e) => setOuterDiameter(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "innerDiameter",
-            label: "Fi wewnętrzne (mm):",
-            value: innerDiameter,
-            onChange: (e) => setInnerDiameter(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "totalLength",
-            label: "Całkowita długość boków (mm):",
-            value: totalLength,
-            onChange: (e) => setTotalLength(e.target.value),
-            placeholder: "Wpisz całkowitą długość w mm",
-            showWhen: () => shape === "totalLength",
-          },
-        ]}
-      />
-      <button onClick={handleCalculate}>Oblicz</button>
+      <GenericForm fields={fields} errors={errors} />
+      <button onClick={handleCalculate} disabled={hasErrors}>
+        Oblicz
+      </button>
       <button onClick={handleClear}>Wyczyść</button>
       <Result result={result} />
     </>

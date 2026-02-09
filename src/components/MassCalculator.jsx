@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import ShapeSelector from "./ShapeSelector";
 import PropTypes from "prop-types";
 import GenericForm from "./GenericForm";
+import { getFormErrors } from "./formValidation";
+import { getMassCalculatorFields } from "./MassCalculator.form";
 
 export default function MassCalculator({
   onMassUpdate,
@@ -50,6 +52,28 @@ export default function MassCalculator({
     rodDiameter,
     rodLength,
   ]);
+
+  const fields = getMassCalculatorFields({
+    shape,
+    length,
+    setLength,
+    width,
+    setWidth,
+    outerDiameter,
+    setOuterDiameter,
+    innerDiameter,
+    setInnerDiameter,
+    totalLength,
+    setTotalLength,
+    thickness,
+    setThickness,
+    rodDiameter,
+    setRodDiameter,
+    rodLength,
+    setRodLength,
+    showRodShape,
+  });
+  const { errors } = getFormErrors(fields);
 
   const calculateAndNotify = () => {
     let mass = 0;
@@ -165,74 +189,7 @@ export default function MassCalculator({
         showRodShape={showRodShape}
       />
 
-      <GenericForm
-        fields={[
-          {
-            id: "length",
-            label: "Długość boku A (mm):",
-            value: length,
-            onChange: (e) => setLength(e.target.value),
-            placeholder: "Wpisz długość A w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "width",
-            label: "Długość boku B (mm):",
-            value: width,
-            onChange: (e) => setWidth(e.target.value),
-            placeholder: "Wpisz długość B w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "outerDiameter",
-            label: "Średnica zewnętrzna (mm):",
-            value: outerDiameter,
-            onChange: (e) => setOuterDiameter(e.target.value),
-            placeholder: "Wpisz średnicę zewnętrzną w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "innerDiameter",
-            label: "Średnica wewnętrzna (mm):",
-            value: innerDiameter,
-            onChange: (e) => setInnerDiameter(e.target.value),
-            placeholder: "Wpisz średnicę wewnętrzną w mm (opcjonalnie)",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "totalLength",
-            label: "Całkowita długość boków (mm):",
-            value: totalLength,
-            onChange: (e) => setTotalLength(e.target.value),
-            placeholder: "Wpisz całkowitą długość w mm",
-            showWhen: () => shape === "totalLength",
-          },
-          {
-            id: "thickness",
-            label: "Grubość materiału (mm):",
-            value: thickness,
-            onChange: (e) => setThickness(e.target.value),
-            placeholder: "Wpisz grubość w mm",
-            showWhen: () => shape !== "rod",
-          },
-          {
-            id: "rodDiameter",
-            label: "Średnica pręta (mm):",
-            value: rodDiameter,
-            onChange: (e) => setRodDiameter(e.target.value),
-            placeholder: "Wpisz średnicę pręta w mm",
-            showWhen: () => shape === "rod" && showRodShape,
-          },
-          {
-            id: "rodLength",
-            label: "Długość pręta (mm):",
-            value: rodLength,
-            onChange: (e) => setRodLength(e.target.value),
-            placeholder: "Wpisz długość pręta w mm",
-            showWhen: () => shape === "rod" && showRodShape,
-          },
-        ]}
-      />
+      <GenericForm fields={fields} errors={errors} />
 
       {calculatedMass && <p>{calculatedMass}</p>}
     </>

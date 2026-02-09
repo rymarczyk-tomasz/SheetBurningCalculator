@@ -1,5 +1,7 @@
 import React from "react";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import { getSawFields } from "./SawCalculator.form";
 
 export default function SawCalculator({
   rodDiameter,
@@ -10,21 +12,16 @@ export default function SawCalculator({
   handleClear,
   result,
 }) {
+  const fields = getSawFields({ rodDiameter, setRodDiameter });
+  const { errors, hasErrors } = getFormErrors(fields);
+
   return (
     <>
-      <GenericForm
-        fields={[
-          {
-            id: "diameter",
-            label: "Wpisz średnicę pręta lub fi zew. rury w mm:",
-            value: rodDiameter,
-            onChange: (e) => setRodDiameter(e.target.value),
-            placeholder: "Wpisz średnicę pręta lub fi zew. rury w mm",
-          },
-        ]}
-      />
+      <GenericForm fields={fields} errors={errors} />
 
-      <button onClick={handleCalculate}>Oblicz</button>
+      <button onClick={handleCalculate} disabled={hasErrors}>
+        Oblicz
+      </button>
       <button onClick={handleClear}>Wyczyść</button>
       <>
         {result.rodResult && <p>{result.rodResult}</p>}

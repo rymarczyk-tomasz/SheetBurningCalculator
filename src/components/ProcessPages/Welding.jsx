@@ -2,6 +2,16 @@ import React, { useState, useEffect } from "react";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import {
+  getWeldingLengthFields,
+  getWeldingSelectorFields,
+} from "./Welding.form";
+import {
+  clearCalculation,
+  loadCalculation,
+  saveCalculation,
+} from "../../utils/calculationStorage";
 
 async function loadSpawanieCSV() {
   try {
@@ -65,16 +75,29 @@ export default function Welding() {
   };
 
   useEffect(() => {
-    setTotalLength("");
-    setResult("");
-    setWeldType("pachwina_a");
-    setWeldSize("");
-    setWeldPosition("PA");
+    const stored = loadCalculation("welding");
+    if (stored) {
+      setTotalLength(stored.totalLength ?? "");
+      setResult(stored.result ?? "");
+      setWeldType(stored.weldType ?? "pachwina_a");
+      setWeldSize(stored.weldSize ?? "");
+      setWeldPosition(stored.weldPosition ?? "PA");
+    } else {
+      setTotalLength("");
+      setResult("");
+      setWeldType("pachwina_a");
+      setWeldSize("");
+      setWeldPosition("PA");
+    }
 
     async function init() {
       const { types: t, table: tbl } = await loadSpawanieCSV();
       setTypes(t);
       setTable(tbl);
+
+      if (stored?.weldType) {
+        return;
+      }
 
       if (t.includes("pachwina")) {
         setWeldType("pachwina_a");
@@ -207,11 +230,17 @@ export default function Welding() {
       extraNote = `(wielkość spoiny ${sizeValue} )`;
     }
 
-    setResult(
-      `Szacowany czas spawania (${chosenLabel}) w pozycji ${weldPosition}: ${timeHours.toFixed(
-        2,
-      )} h.`,
-    );
+    const message = `Szacowany czas spawania (${chosenLabel}) w pozycji ${weldPosition}: ${timeHours.toFixed(
+      2,
+    )} h.`;
+    saveCalculation("welding", {
+      totalLength,
+      weldType,
+      weldSize,
+      weldPosition,
+      result: message,
+    });
+    setResult(message);
   }
 
   function handleClear() {
@@ -222,6 +251,7 @@ export default function Welding() {
     );
     setWeldSize("");
     setWeldPosition("PA");
+    clearCalculation("welding");
   }
 
   useKeyShortcuts({
@@ -244,54 +274,37 @@ export default function Welding() {
     { value: "PE", label: "PE" },
   ];
 
+  const selectorFields = getWeldingSelectorFields({
+    weldType,
+    setWeldType,
+    weldPosition,
+    setWeldPosition,
+    weldSize,
+    setWeldSize,
+    weldTypeOptions,
+    weldPositionOptions,
+  });
+  const lengthFields = getWeldingLengthFields({
+    totalLength,
+    setTotalLength,
+  });
+
+  const { errors: selectorErrors, hasErrors: selectorsHasErrors } =
+    getFormErrors(selectorFields);
+  const { errors: lengthErrors, hasErrors: lengthHasErrors } =
+    getFormErrors(lengthFields);
+  const hasErrors = selectorsHasErrors || lengthHasErrors;
+
   return (
     <>
       <div className="welding-selectors">
-        <GenericForm
-          fields={[
-            {
-              id: "weldType",
-              type: "select",
-              label: "Rodzaj spoiny:",
-              value: weldType,
-              onChange: (e) => setWeldType(e.target.value),
-              wrapperClassName: "form-group",
-              options: weldTypeOptions,
-            },
-            {
-              id: "weldPosition",
-              type: "select",
-              label: "Pozycja spawania:",
-              value: weldPosition,
-              onChange: (e) => setWeldPosition(e.target.value),
-              wrapperClassName: "form-group",
-              options: weldPositionOptions,
-            },
-            {
-              id: "weldSize",
-              label: "Wielkość spoiny:",
-              value: weldSize,
-              onChange: (e) => setWeldSize(e.target.value),
-              placeholder: "Wpisz wielkość spoiny",
-            },
-          ]}
-        />
+        <GenericForm fields={selectorFields} errors={selectorErrors} />
       </div>
 
-      <GenericForm
-        fields={[
-          {
-            id: "totalLength",
-            label: "Całkowita długość spawania (mm):",
-            value: totalLength,
-            onChange: (e) => setTotalLength(e.target.value),
-            placeholder: "Wpisz całkowitą długość spawania w mm",
-          },
-        ]}
-      />
+      <GenericForm fields={lengthFields} errors={lengthErrors} />
 
       <div className="welding-actions">
-        <button onClick={handleCalculate} disabled={loading}>
+        <button onClick={handleCalculate} disabled={loading || hasErrors}>
           {loading ? "Obliczanie..." : "Oblicz"}
         </button>
         <button onClick={handleClear}>Wyczyść</button>

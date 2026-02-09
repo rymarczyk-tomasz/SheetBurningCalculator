@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 
 import ProcessSelector from "./components/ProcessSelector";
@@ -21,8 +21,14 @@ import PipeSchedule from "./components/ProcessPages/PipeSchedule";
 import { burningCalculator } from "./utils/calculators/burningCalculator";
 import { sawCalculator } from "./utils/calculators/sawCalculator";
 import { waterjetCalculator } from "./utils/calculators/waterjetCalculator";
+import {
+    clearCalculation,
+    loadCalculation,
+    saveCalculation,
+} from "./utils/calculationStorage";
 
 function App() {
+    const restoringRef = useRef(false);
     const [process, setProcess] = useState("burning");
     const [shape, setShape] = useState("rectangle");
 
@@ -56,10 +62,36 @@ function App() {
     };
 
     useEffect(() => {
+        if (restoringRef.current) {
+            restoringRef.current = false;
+            return;
+        }
+
         clearFields();
     }, [shape, process]);
 
     useEffect(() => {
+        const stored = loadCalculation(`app:${process}`);
+        if (stored) {
+            restoringRef.current = true;
+            setShape(stored.shape || (process === "saw" ? "rod" : "rectangle"));
+            setLength(stored.length ?? "");
+            setWidth(stored.width ?? "");
+            setOuterDiameter(stored.outerDiameter ?? "");
+            setInnerDiameter(stored.innerDiameter ?? "");
+            setThickness(stored.thickness ?? "");
+            setTotalLength(stored.totalLength ?? "");
+            setRodDiameter(stored.rodDiameter ?? "");
+            setPipeOuterDiameter(stored.pipeOuterDiameter ?? "");
+            setHoles(
+                stored.holes ?? [{ diameter: "", count: "" }]
+            );
+            setRectHoles(stored.rectHoles ?? [{ a: "", b: "", count: "" }]);
+            setWaterjetType(stored.waterjetType ?? "czarna");
+            setResult(stored.result ?? "");
+            return;
+        }
+
         if (process === "saw") setShape("rod");
         if (process === "burning") setShape("rectangle");
     }, [process]);
@@ -100,10 +132,27 @@ function App() {
             });
         }
 
+        saveCalculation(`app:${process}`, {
+            shape,
+            length,
+            width,
+            outerDiameter,
+            innerDiameter,
+            thickness,
+            totalLength,
+            rodDiameter,
+            pipeOuterDiameter,
+            holes,
+            rectHoles,
+            waterjetType,
+            result: message,
+        });
+
         setResult(message);
     }
 
     const handleClear = () => {
+        clearCalculation(`app:${process}`);
         clearFields();
     };
 

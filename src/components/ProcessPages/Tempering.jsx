@@ -3,6 +3,13 @@ import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import MassCalculator from "../MassCalculator";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import { getTemperingFields } from "./Tempering.form";
+import {
+  clearCalculation,
+  loadCalculation,
+  saveCalculation,
+} from "../../utils/calculationStorage";
 
 export default function Tempering() {
   const [mass, setMass] = useState("");
@@ -21,6 +28,15 @@ export default function Tempering() {
         setCsvData(parseCSV(text));
       })
       .catch((err) => setResult("Błąd ładowania pliku CSV: " + err.message));
+  }, []);
+
+  useEffect(() => {
+    const stored = loadCalculation("tempering");
+    if (stored) {
+      setMass(stored.mass ?? "");
+      setThickness(stored.thickness ?? "");
+      setResult(stored.result ?? null);
+    }
   }, []);
 
   function parseCSV(text) {
@@ -70,7 +86,13 @@ export default function Tempering() {
       return;
     }
 
-    setResult(`Czas ulepszania cieplnego: ${time} h`);
+    const message = `Czas ulepszania cieplnego: ${time} h`;
+    saveCalculation("tempering", {
+      mass,
+      thickness,
+      result: message,
+    });
+    setResult(message);
   };
 
   const handleClear = () => {
@@ -78,6 +100,7 @@ export default function Tempering() {
     setThickness("");
     setResult(null);
     setClearCounter((c) => c + 1);
+    clearCalculation("tempering");
   };
 
   const handleMassUpdate = (value) => {
@@ -89,28 +112,20 @@ export default function Tempering() {
     onEscape: handleClear,
   });
 
+  const fields = getTemperingFields({
+    mass,
+    setMass,
+    thickness,
+    setThickness,
+  });
+  const { errors, hasErrors } = getFormErrors(fields);
+
   return (
     <>
-      <GenericForm
-        fields={[
-          {
-            id: "mass",
-            label: "Masa detalu (kg):",
-            value: mass,
-            onChange: (e) => setMass(e.target.value),
-            placeholder:
-              "Wpisz masę w kg, jezeli nie znasz masy, uzyj kalkulatora poniżej",
-          },
-          {
-            id: "thickness",
-            label: "Grubość materiału (mm):",
-            value: thickness,
-            onChange: (e) => setThickness(e.target.value),
-            placeholder: "Wpisz grubość w mm",
-          },
-        ]}
-      />
-      <button onClick={handleCalculate}>Oblicz</button>
+      <GenericForm fields={fields} errors={errors} />
+      <button onClick={handleCalculate} disabled={hasErrors}>
+        Oblicz
+      </button>
       <button onClick={handleClear}>Wyczyść</button>
       <MassCalculator
         onMassUpdate={handleMassUpdate}

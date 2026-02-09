@@ -3,6 +3,11 @@ import ShapeSelector from "../ShapeSelector";
 import Result from "../Result";
 import ExtraOptions from "../BurningCalculator/ExtraOptions";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import {
+  getWaterjetFields,
+  getWaterjetTypeFields,
+} from "./WaterjetCalculator.form";
 
 export default function WaterjetCalculator({
   shape,
@@ -37,29 +42,31 @@ export default function WaterjetCalculator({
     }
   }, []);
 
+  const typeFields = getWaterjetTypeFields({ waterjetType, setWaterjetType });
+  const mainFields = getWaterjetFields({
+    shape,
+    length,
+    setLength,
+    width,
+    setWidth,
+    outerDiameter,
+    setOuterDiameter,
+    innerDiameter,
+    setInnerDiameter,
+    totalLength,
+    setTotalLength,
+    thickness,
+    setThickness,
+  });
+
+  const { errors: typeErrors } = getFormErrors(typeFields);
+  const { errors: mainErrors, hasErrors: mainHasErrors } =
+    getFormErrors(mainFields);
+  const hasErrors = mainHasErrors || Object.keys(typeErrors).length > 0;
+
   return (
     <>
-      <GenericForm
-        fields={[
-          {
-            id: "waterjetType",
-            type: "radio",
-            value: waterjetType,
-            onChange: (value) => setWaterjetType(value),
-            wrapperClassName: "waterjet-type-group",
-            options: [
-              {
-                value: "czarna",
-                label: "Blacha czarna",
-              },
-              {
-                value: "nierdzewka",
-                label: "Blacha nierdzewna",
-              },
-            ],
-          },
-        ]}
-      />
+      <GenericForm fields={typeFields} errors={typeErrors} />
 
       <ShapeSelector shape={shape} setShape={setShape} isCutting={false} />
 
@@ -77,59 +84,11 @@ export default function WaterjetCalculator({
         )}
       </div>
 
-      <GenericForm
-        fields={[
-          {
-            id: "length",
-            label: "Długość boku A (mm):",
-            value: length,
-            onChange: (e) => setLength(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "width",
-            label: "Długość boku B (mm):",
-            value: width,
-            onChange: (e) => setWidth(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "outerDiameter",
-            label: "Fi zewnętrzne (mm):",
-            value: outerDiameter,
-            onChange: (e) => setOuterDiameter(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "innerDiameter",
-            label: "Fi wewnętrzne (mm):",
-            value: innerDiameter,
-            onChange: (e) => setInnerDiameter(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "totalLength",
-            label: "Całkowita długość boków (mm):",
-            value: totalLength,
-            onChange: (e) => setTotalLength(e.target.value),
-            placeholder: "Wpisz całkowitą długość w mm",
-            showWhen: () => shape === "totalLength",
-          },
-          {
-            id: "thickness",
-            label: "Grubość blachy (mm):",
-            value: thickness,
-            onChange: (e) => setThickness(e.target.value),
-            placeholder: "Wpisz grubość w mm",
-          },
-        ]}
-      />
+      <GenericForm fields={mainFields} errors={mainErrors} />
 
-      <button onClick={handleCalculate}>Oblicz</button>
+      <button onClick={handleCalculate} disabled={hasErrors}>
+        Oblicz
+      </button>
       <button onClick={handleClear}>Wyczyść</button>
       <Result result={result} />
     </>

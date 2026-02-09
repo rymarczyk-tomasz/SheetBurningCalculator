@@ -3,6 +3,13 @@ import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import MassCalculator from "../MassCalculator";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import { getNitridingFields } from "./Nitriding.form";
+import {
+  clearCalculation,
+  loadCalculation,
+  saveCalculation,
+} from "../../utils/calculationStorage";
 
 export default function Nitriding() {
   const [mass, setMass] = useState("");
@@ -21,6 +28,15 @@ export default function Nitriding() {
         setCsvData(parseCSV(text));
       })
       .catch((err) => setResult("Błąd ładowania pliku CSV: " + err.message));
+  }, []);
+
+  useEffect(() => {
+    const stored = loadCalculation("nitriding");
+    if (stored) {
+      setMass(stored.mass ?? "");
+      setThickness(stored.thickness ?? "");
+      setResult(stored.result ?? null);
+    }
   }, []);
 
   function parseCSV(text) {
@@ -81,7 +97,13 @@ export default function Nitriding() {
       return;
     }
 
-    setResult(`Czas azotowania: ${time} h`);
+    const message = `Czas azotowania: ${time} h`;
+    saveCalculation("nitriding", {
+      mass,
+      thickness,
+      result: message,
+    });
+    setResult(message);
   };
 
   const handleClear = () => {
@@ -89,6 +111,7 @@ export default function Nitriding() {
     setThickness("");
     setResult(null);
     setClearCounter((c) => c + 1);
+    clearCalculation("nitriding");
   };
 
   const handleMassUpdate = (value) => {
@@ -100,28 +123,20 @@ export default function Nitriding() {
     onEscape: handleClear,
   });
 
+  const fields = getNitridingFields({
+    mass,
+    setMass,
+    thickness,
+    setThickness,
+  });
+  const { errors, hasErrors } = getFormErrors(fields);
+
   return (
     <>
-      <GenericForm
-        fields={[
-          {
-            id: "mass",
-            label: "Masa detalu (kg):",
-            value: mass,
-            onChange: (e) => setMass(e.target.value),
-            placeholder:
-              "Wpisz masę w kg, jeżeli nie znasz masy, użyj kalkulatora poniżej",
-          },
-          {
-            id: "thickness",
-            label: "Grubość warstwy azotowanej [mm]:",
-            value: thickness,
-            onChange: (e) => setThickness(e.target.value),
-            placeholder: "Wpisz grubość warstwy azotowanej w mm (ręcznie)",
-          },
-        ]}
-      />
-      <button onClick={handleCalculate}>Oblicz</button>
+      <GenericForm fields={fields} errors={errors} />
+      <button onClick={handleCalculate} disabled={hasErrors}>
+        Oblicz
+      </button>
       <button onClick={handleClear}>Wyczyść</button>
 
       <MassCalculator

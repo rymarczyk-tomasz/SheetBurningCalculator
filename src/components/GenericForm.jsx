@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 import InputField from "./InputField";
 
@@ -13,13 +14,37 @@ const shouldShowField = (showWhen) => {
   return Boolean(showWhen);
 };
 
-const GenericForm = ({ fields }) => {
+const GenericForm = ({ fields, errors }) => {
+  const [touched, setTouched] = useState({});
+
+  const markTouched = (fieldId) => {
+    setTouched((prev) => {
+      if (prev[fieldId]) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [fieldId]: true,
+      };
+    });
+  };
+
+  const getError = (field) => {
+    if (!touched[field.id]) {
+      return null;
+    }
+
+    return errors[field.id] || null;
+  };
+
   return (
     <>
       {fields
         .filter((field) => shouldShowField(field.showWhen))
         .map((field) => {
           const wrapperClassName = field.wrapperClassName || "form-group";
+          const fieldError = getError(field);
 
           if (field.type === "select") {
             return (
@@ -28,7 +53,14 @@ const GenericForm = ({ fields }) => {
                 <select
                   id={field.id}
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(event) => {
+                    field.onChange(event);
+                    markTouched(field.id);
+                  }}
+                  aria-invalid={fieldError ? "true" : "false"}
+                  aria-describedby={
+                    fieldError ? `${field.id}-error` : undefined
+                  }
                 >
                   {field.options.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -36,6 +68,11 @@ const GenericForm = ({ fields }) => {
                     </option>
                   ))}
                 </select>
+                {fieldError && (
+                  <div className="form-error" id={`${field.id}-error`}>
+                    {fieldError}
+                  </div>
+                )}
               </div>
             );
           }
@@ -53,11 +90,19 @@ const GenericForm = ({ fields }) => {
                       name={field.name || field.id}
                       value={option.value}
                       checked={String(field.value) === String(option.value)}
-                      onChange={() => field.onChange(option.value)}
+                      onChange={() => {
+                        field.onChange(option.value);
+                        markTouched(field.id);
+                      }}
                     />
                     {option.label}
                   </label>
                 ))}
+                {fieldError && (
+                  <div className="form-error" id={`${field.id}-error`}>
+                    {fieldError}
+                  </div>
+                )}
               </div>
             );
           }
@@ -68,9 +113,14 @@ const GenericForm = ({ fields }) => {
               id={field.id}
               label={field.label}
               value={field.value}
-              onChange={field.onChange}
+              onChange={(event) => {
+                field.onChange(event);
+                markTouched(field.id);
+              }}
+              onBlur={() => markTouched(field.id)}
               placeholder={field.placeholder}
               type={field.type || "number"}
+              error={fieldError}
             />
           );
         })}
@@ -102,6 +152,11 @@ GenericForm.propTypes = {
       name: PropTypes.string,
     }),
   ).isRequired,
+  errors: PropTypes.objectOf(PropTypes.string),
+};
+
+GenericForm.defaultProps = {
+  errors: {},
 };
 
 export default GenericForm;

@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import { getPipeScheduleFields } from "./PipeSchedule.form";
+import {
+  clearCalculation,
+  loadCalculation,
+  saveCalculation,
+} from "../../utils/calculationStorage";
 
 const NOMINAL_SIZE_MAP = {
   0.25: "1/4",
@@ -100,6 +107,15 @@ export default function PipeSchedule() {
     })();
   }, []);
 
+  useEffect(() => {
+    const stored = loadCalculation("pipeSchedule");
+    if (stored) {
+      setNominalSize(stored.nominalSize ?? "");
+      setSchedule(stored.schedule ?? "Sch40");
+      setResult(stored.result ?? "");
+    }
+  }, []);
+
   const normalizeNominalSize = (input) => {
     if (!input) return null;
 
@@ -148,46 +164,40 @@ export default function PipeSchedule() {
       ? `${pipeEntry.outerDiameter}x${thickness}`
       : `${thickness}`;
 
-    setResult(`Wymiary rury (${normalized}, ${schedule}): ${diamDisplay} mm`);
+    const message = `Wymiary rury (${normalized}, ${schedule}): ${diamDisplay} mm`;
+    saveCalculation("pipeSchedule", {
+      nominalSize,
+      schedule,
+      result: message,
+    });
+    setResult(message);
   };
 
   const handleClear = () => {
     setNominalSize("");
     setSchedule(schedules[0] || "Sch40");
     setResult("");
+    clearCalculation("pipeSchedule");
   };
 
   useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
+  const fields = getPipeScheduleFields({
+    nominalSize,
+    setNominalSize,
+    schedule,
+    setSchedule,
+    schedules,
+  });
+  const { errors, hasErrors } = getFormErrors(fields);
+
   return (
     <>
       <div className="pipe-schedule-container">
-        <GenericForm
-          fields={[
-            {
-              id: "nominalSize",
-              label: "Nominalna wielkość rury (np. 1/4, 0.25 lub 0,25):",
-              value: nominalSize,
-              onChange: (e) => setNominalSize(e.target.value),
-              placeholder: 'Wpisz wielkość (np. "1/4", "2 1/2", "2.5", "2,5")',
-              type: "text",
-            },
-            {
-              id: "schedule",
-              type: "select",
-              label: "Typ Schedule:",
-              value: schedule,
-              onChange: (e) => setSchedule(e.target.value),
-              options: schedules.map((sch) => ({
-                value: sch,
-                label: sch,
-              })),
-            },
-          ]}
-        />
+        <GenericForm fields={fields} errors={errors} />
       </div>
 
-      <button onClick={handleCalculate} disabled={loading}>
+      <button onClick={handleCalculate} disabled={loading || hasErrors}>
         {loading ? "Ładowanie..." : "Oblicz"}
       </button>
       <button onClick={handleClear}>Wyczyść</button>

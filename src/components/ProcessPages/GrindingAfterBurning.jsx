@@ -7,6 +7,13 @@ import { calculateCircle } from "../../utils/calculateCircle";
 import { calculateSemiCircle } from "../../utils/calculateSemiCircle";
 import { calculateTotalLength } from "../../utils/calculateTotalLength";
 import GenericForm from "../GenericForm";
+import { getFormErrors } from "../formValidation";
+import { getGrindingAfterBurningFields } from "./GrindingAfterBurning.form";
+import {
+  clearCalculation,
+  loadCalculation,
+  saveCalculation,
+} from "../../utils/calculationStorage";
 
 async function getGrindingMultiplier(thickness) {
   try {
@@ -66,6 +73,19 @@ export default function GrindingAfterBurning() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const stored = loadCalculation("grindingAfterBurning");
+    if (stored) {
+      setShape(stored.shape ?? "rectangle");
+      setLength(stored.length ?? "");
+      setWidth(stored.width ?? "");
+      setOuterDiameter(stored.outerDiameter ?? "");
+      setInnerDiameter(stored.innerDiameter ?? "");
+      setThickness(stored.thickness ?? "");
+      setTotalLength(stored.totalLength ?? "");
+      setResult(stored.result ?? "");
+      return;
+    }
+
     setShape("rectangle");
     setLength("");
     setWidth("");
@@ -116,7 +136,18 @@ export default function GrindingAfterBurning() {
       return;
     }
 
-    setResult(`Czas szlifowania po paleniu: ${value.toFixed(2)} h`);
+    const message = `Czas szlifowania po paleniu: ${value.toFixed(2)} h`;
+    saveCalculation("grindingAfterBurning", {
+      shape,
+      length,
+      width,
+      outerDiameter,
+      innerDiameter,
+      thickness,
+      totalLength,
+      result: message,
+    });
+    setResult(message);
   }
 
   function handleClear() {
@@ -127,6 +158,7 @@ export default function GrindingAfterBurning() {
     setThickness("");
     setTotalLength("");
     setResult("");
+    clearCalculation("grindingAfterBurning");
   }
 
   useKeyShortcuts({
@@ -134,61 +166,28 @@ export default function GrindingAfterBurning() {
     onEscape: handleClear,
   });
 
+  const fields = getGrindingAfterBurningFields({
+    shape,
+    length,
+    setLength,
+    width,
+    setWidth,
+    outerDiameter,
+    setOuterDiameter,
+    innerDiameter,
+    setInnerDiameter,
+    totalLength,
+    setTotalLength,
+    thickness,
+    setThickness,
+  });
+  const { errors, hasErrors } = getFormErrors(fields);
+
   return (
     <>
       <ShapeSelector shape={shape} setShape={setShape} isCutting={false} />
-      <GenericForm
-        fields={[
-          {
-            id: "length",
-            label: "Długość boku A (mm):",
-            value: length,
-            onChange: (e) => setLength(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "width",
-            label: "Długość boku B (mm):",
-            value: width,
-            onChange: (e) => setWidth(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "rectangle",
-          },
-          {
-            id: "outerDiameter",
-            label: "Fi zewnętrzne (mm):",
-            value: outerDiameter,
-            onChange: (e) => setOuterDiameter(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "innerDiameter",
-            label: "Fi wewnętrzne (mm):",
-            value: innerDiameter,
-            onChange: (e) => setInnerDiameter(e.target.value),
-            placeholder: "Wpisz wymiar w mm",
-            showWhen: () => shape === "circle" || shape === "semicircle",
-          },
-          {
-            id: "totalLength",
-            label: "Całkowita długość boków (mm):",
-            value: totalLength,
-            onChange: (e) => setTotalLength(e.target.value),
-            placeholder: "Wpisz całkowitą długość w mm",
-            showWhen: () => shape === "totalLength",
-          },
-          {
-            id: "thickness",
-            label: "Grubość blachy (mm):",
-            value: thickness,
-            onChange: (e) => setThickness(e.target.value),
-            placeholder: "Wpisz grubość w mm",
-          },
-        ]}
-      />
-      <button onClick={handleCalculate} disabled={loading}>
+      <GenericForm fields={fields} errors={errors} />
+      <button onClick={handleCalculate} disabled={loading || hasErrors}>
         {loading ? "Obliczanie..." : "Oblicz"}
       </button>
       <button onClick={handleClear}>Wyczyść</button>
