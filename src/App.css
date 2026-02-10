@@ -72,6 +72,12 @@ button {
   justify-content: center;
   margin-bottom: 8px;
 }
+.saw-type-group {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 8px;
+}
 .extra-options-container {
   border: 1px solid #ccc;
   padding: 12px;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import "./App.css";
 
 import ProcessSelector from "./components/ProcessSelector";
@@ -16,148 +16,10 @@ import Deburring from "./components/ProcessPages/Deburring";
 import Straightening from "./components/ProcessPages/Straightening";
 import BevelingMilling from "./components/ProcessPages/BevelingMilling";
 import Welding from "./components/ProcessPages/Welding";
-import useKeyShortcuts from "./hooks/useKeyShortcuts";
 import PipeSchedule from "./components/ProcessPages/PipeSchedule";
-import { burningCalculator } from "./utils/calculators/burningCalculator";
-import { sawCalculator } from "./utils/calculators/sawCalculator";
-import { waterjetCalculator } from "./utils/calculators/waterjetCalculator";
-import {
-  clearCalculation,
-  loadCalculation,
-  saveCalculation,
-} from "./utils/calculationStorage";
 
 function App() {
-  const restoringRef = useRef(false);
-  const [process, setProcess] = useState("burning");
-  const [shape, setShape] = useState("rectangle");
-
-  const [length, setLength] = useState("");
-  const [width, setWidth] = useState("");
-  const [outerDiameter, setOuterDiameter] = useState("");
-  const [innerDiameter, setInnerDiameter] = useState("");
-  const [thickness, setThickness] = useState("");
-  const [totalLength, setTotalLength] = useState("");
-  const [rodDiameter, setRodDiameter] = useState("");
-  const [pipeOuterDiameter, setPipeOuterDiameter] = useState("");
-  const [holes, setHoles] = useState([{ diameter: "", count: "" }]);
-  const [rectHoles, setRectHoles] = useState([{ a: "", b: "", count: "" }]);
-  const [waterjetType, setWaterjetType] = useState("czarna");
-
-  const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
-  const [result, setResult] = useState("");
-
-  const clearFields = () => {
-    setLength("");
-    setWidth("");
-    setOuterDiameter("");
-    setInnerDiameter("");
-    setThickness("");
-    setTotalLength("");
-    setRodDiameter("");
-    setPipeOuterDiameter("");
-    setHoles([{ diameter: "", count: "" }]);
-    setRectHoles([{ a: "", b: "", count: "" }]);
-    setResult("");
-  };
-
-  useEffect(() => {
-    if (restoringRef.current) {
-      restoringRef.current = false;
-      return;
-    }
-
-    clearFields();
-  }, [shape, process]);
-
-  useEffect(() => {
-    const stored = loadCalculation(`app:${process}`);
-    if (stored) {
-      restoringRef.current = true;
-      setShape(stored.shape || (process === "saw" ? "rod" : "rectangle"));
-      setLength(stored.length ?? "");
-      setWidth(stored.width ?? "");
-      setOuterDiameter(stored.outerDiameter ?? "");
-      setInnerDiameter(stored.innerDiameter ?? "");
-      setThickness(stored.thickness ?? "");
-      setTotalLength(stored.totalLength ?? "");
-      setRodDiameter(stored.rodDiameter ?? "");
-      setPipeOuterDiameter(stored.pipeOuterDiameter ?? "");
-      setHoles(stored.holes ?? [{ diameter: "", count: "" }]);
-      setRectHoles(stored.rectHoles ?? [{ a: "", b: "", count: "" }]);
-      setWaterjetType(stored.waterjetType ?? "czarna");
-      setResult(stored.result ?? "");
-      return;
-    }
-
-    if (process === "saw") setShape("rod");
-    if (process === "burning") setShape("rectangle");
-  }, [process]);
-
-  function handleCalculate() {
-    let message = "";
-
-    if (process === "burning") {
-      message = burningCalculator({
-        shape,
-        length,
-        width,
-        outerDiameter,
-        innerDiameter,
-        totalLength,
-        thickness,
-        holes,
-        rectHoles,
-      });
-    } else if (process === "saw") {
-      message = sawCalculator({
-        shape,
-        rodDiameter,
-        pipeOuterDiameter,
-      });
-    } else if (process === "waterjet") {
-      message = waterjetCalculator({
-        shape,
-        length,
-        width,
-        outerDiameter,
-        innerDiameter,
-        totalLength,
-        thickness,
-        holes,
-        rectHoles,
-        waterjetType,
-      });
-    }
-
-    saveCalculation(`app:${process}`, {
-      shape,
-      length,
-      width,
-      outerDiameter,
-      innerDiameter,
-      thickness,
-      totalLength,
-      rodDiameter,
-      pipeOuterDiameter,
-      holes,
-      rectHoles,
-      waterjetType,
-      result: message,
-    });
-
-    setResult(message);
-  }
-
-  const handleClear = () => {
-    clearCalculation(`app:${process}`);
-    clearFields();
-  };
-
-  useKeyShortcuts({
-    onEnter: handleCalculate,
-    onEscape: handleClear,
-  });
+  const [process, setProcess] = useState("burni3ng");
 
   return (
     <div className="container">
@@ -165,79 +27,9 @@ function App() {
       <ProcessSelector process={process} setProcess={setProcess} />
 
       <div className="secondary-container">
-        {process === "burning" && (
-          <BurningCalculator
-            shape={shape}
-            setShape={setShape}
-            length={length}
-            setLength={setLength}
-            width={width}
-            setWidth={setWidth}
-            outerDiameter={outerDiameter}
-            setOuterDiameter={setOuterDiameter}
-            innerDiameter={innerDiameter}
-            setInnerDiameter={setInnerDiameter}
-            thickness={thickness}
-            setThickness={setThickness}
-            totalLength={totalLength}
-            setTotalLength={setTotalLength}
-            holes={holes}
-            setHoles={setHoles}
-            rectHoles={rectHoles}
-            setRectHoles={setRectHoles}
-            result={result}
-            handleCalculate={handleCalculate}
-            handleClear={handleClear}
-            extraOptionsVisible={extraOptionsVisible}
-            setExtraOptionsVisible={setExtraOptionsVisible}
-          />
-        )}
-
-        {process === "saw" && (
-          <SawCalculator
-            shape={shape}
-            setShape={setShape}
-            rodDiameter={rodDiameter}
-            setRodDiameter={setRodDiameter}
-            pipeOuterDiameter={pipeOuterDiameter}
-            setPipeOuterDiameter={setPipeOuterDiameter}
-            result={result}
-            handleCalculate={handleCalculate}
-            handleClear={handleClear}
-          />
-        )}
-
-        {process === "waterjet" && (
-          <WaterjetCalculator
-            shape={shape}
-            setShape={setShape}
-            length={length}
-            setLength={setLength}
-            width={width}
-            setWidth={setWidth}
-            outerDiameter={outerDiameter}
-            setOuterDiameter={setOuterDiameter}
-            innerDiameter={innerDiameter}
-            setInnerDiameter={setInnerDiameter}
-            thickness={thickness}
-            setThickness={setThickness}
-            totalLength={totalLength}
-            setTotalLength={setTotalLength}
-            holes={holes}
-            setHoles={setHoles}
-            rectHoles={rectHoles}
-            setRectHoles={setRectHoles}
-            waterjetType={waterjetType}
-            setWaterjetType={setWaterjetType}
-            result={result}
-            handleCalculate={handleCalculate}
-            handleClear={handleClear}
-            extraOptionsVisible={extraOptionsVisible}
-            setExtraOptionsVisible={setExtraOptionsVisible}
-          />
-        )}
-
-        {}
+        {process === "burning" && <BurningCalculator />}
+        {process === "saw" && <SawCalculator />}
+        {process === "waterjet" && <WaterjetCalculator />}
         {process === "hardening" && <Hardening />}
         {process === "nitriding" && <Nitriding />}
         {process === "annealing" && <Annealing />}

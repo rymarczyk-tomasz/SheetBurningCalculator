@@ -6,11 +6,14 @@ const InputField = ({
   value,
   onChange,
   onBlur,
+  onKeyDown,
+  name,
   placeholder,
   type,
   error,
 }) => {
   const errorId = error ? `${id}-error` : undefined;
+  const inputName = name || id;
 
   return (
     <div className="form-group">
@@ -18,10 +21,13 @@ const InputField = ({
       <input
         type={type}
         id={id}
+        name={inputName}
         value={value}
         onChange={onChange}
         onBlur={onBlur}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
+        autoComplete="off"
         aria-invalid={error ? "true" : "false"}
         aria-describedby={errorId}
         required
@@ -41,6 +47,8 @@ InputField.propTypes = {
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onChange: PropTypes.func.isRequired,
   onBlur: PropTypes.func,
+  onKeyDown: PropTypes.func,
+  name: PropTypes.string,
   placeholder: PropTypes.string,
   type: PropTypes.string,
   error: PropTypes.string,
@@ -49,6 +57,8 @@ InputField.propTypes = {
 InputField.defaultProps = {
   type: "number",
   onBlur: undefined,
+  onKeyDown: undefined,
+  name: undefined,
   error: undefined,
 };
 

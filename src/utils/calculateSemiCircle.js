@@ -1,22 +1,25 @@
+import { isEmptyValue, parseNumberValue } from "./numberParsing";
+
 export const calculateSemiCircle = (
-    outerDiameter,
-    innerDiameter,
-    multiplier
+  outerDiameter,
+  innerDiameter,
+  multiplier,
 ) => {
-    const outerDiameterValue = parseFloat(outerDiameter);
-    const innerDiameterValue = innerDiameter ? parseFloat(innerDiameter) : 0;
+  const outerDiameterValue = parseNumberValue(outerDiameter);
+  const innerDiameterValue = isEmptyValue(innerDiameter)
+    ? 0
+    : parseNumberValue(innerDiameter);
 
-    if (innerDiameterValue >= outerDiameterValue) {
-        throw new Error("Fi wewnętrzne musi być mniejsze od fi zewnętrznego.");
-    }
+  if (innerDiameterValue >= outerDiameterValue) {
+    throw new Error("Fi wewnętrzne musi być mniejsze od fi zewnętrznego.");
+  }
 
-    if (!isNaN(outerDiameterValue) && !isNaN(innerDiameterValue)) {
-        return (
-            ((((outerDiameterValue + innerDiameterValue) / 2) * Math.PI) /
-                1000) *
-            multiplier
-        );
-    } else {
-        throw new Error("Proszę podać fi zewnętrzne dla koła.");
-    }
+  if (!isNaN(outerDiameterValue) && !isNaN(innerDiameterValue)) {
+    return (
+      ((((outerDiameterValue + innerDiameterValue) / 2) * Math.PI) / 1000) *
+      multiplier
+    );
+  }
+
+  throw new Error("Proszę podać fi zewnętrzne dla koła.");
 };

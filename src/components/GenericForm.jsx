@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import PropTypes from "prop-types";
 import InputField from "./InputField";
 
@@ -14,7 +14,8 @@ const shouldShowField = (showWhen) => {
   return Boolean(showWhen);
 };
 
-const GenericForm = ({ fields, errors }) => {
+const GenericForm = ({ fields, errors, hasErrors, onSubmit }) => {
+  const containerRef = useRef(null);
   const [touched, setTouched] = useState({});
 
   const markTouched = (fieldId) => {
@@ -38,8 +39,39 @@ const GenericForm = ({ fields, errors }) => {
     return errors[field.id] || null;
   };
 
+  const handleEnterKey = (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    const focusable = Array.from(
+      container.querySelectorAll("input, select, textarea"),
+    ).filter((element) => !element.disabled && element.type !== "hidden");
+
+    if (focusable.length === 0) {
+      return;
+    }
+
+    const currentIndex = focusable.indexOf(event.target);
+    if (currentIndex >= 0 && currentIndex < focusable.length - 1) {
+      focusable[currentIndex + 1].focus();
+      return;
+    }
+
+    if (!hasErrors && onSubmit) {
+      onSubmit();
+    }
+  };
+
   return (
-    <>
+    <div ref={containerRef}>
       {fields
         .filter((field) => shouldShowField(field.showWhen))
         .map((field) => {
@@ -57,6 +89,8 @@ const GenericForm = ({ fields, errors }) => {
                     field.onChange(event);
                     markTouched(field.id);
                   }}
+                  onKeyDown={handleEnterKey}
+                  autoComplete="off"
                   aria-invalid={fieldError ? "true" : "false"}
                   aria-describedby={
                     fieldError ? `${field.id}-error` : undefined
@@ -94,6 +128,8 @@ const GenericForm = ({ fields, errors }) => {
                         field.onChange(option.value);
                         markTouched(field.id);
                       }}
+                      onKeyDown={handleEnterKey}
+                      autoComplete="off"
                     />
                     {option.label}
                   </label>
@@ -118,13 +154,14 @@ const GenericForm = ({ fields, errors }) => {
                 markTouched(field.id);
               }}
               onBlur={() => markTouched(field.id)}
+              onKeyDown={handleEnterKey}
               placeholder={field.placeholder}
               type={field.type || "number"}
               error={fieldError}
             />
           );
         })}
-    </>
+    </div>
   );
 };
 
@@ -153,10 +190,14 @@ GenericForm.propTypes = {
     }),
   ).isRequired,
   errors: PropTypes.objectOf(PropTypes.string),
+  hasErrors: PropTypes.bool,
+  onSubmit: PropTypes.func,
 };
 
 GenericForm.defaultProps = {
   errors: {},
+  hasErrors: false,
+  onSubmit: undefined,
 };
 
 export default GenericForm;

@@ -6,13 +6,29 @@ import { useEffect } from "react";
  * @param {function} params.onEscape
  */
 export default function useKeyShortcuts({ onEnter, onEscape }) {
-    useEffect(() => {
-        const handleKeyDown = (event) => {
-            if (event.key === "Enter") onEnter?.();
-            if (event.key === "Escape") onEscape?.();
-        };
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        onEscape?.();
+        return;
+      }
 
-        document.addEventListener("keydown", handleKeyDown);
-        return () => document.removeEventListener("keydown", handleKeyDown);
-    }, [onEnter, onEscape]);
+      const target = event.target;
+      const tagName = target?.tagName?.toLowerCase();
+      const isEditable =
+        target?.isContentEditable ||
+        tagName === "input" ||
+        tagName === "textarea" ||
+        tagName === "select";
+
+      if (isEditable) {
+        return;
+      }
+
+      if (event.key === "Enter") onEnter?.();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onEnter, onEscape]);
 }

@@ -1,27 +1,6 @@
-export const isEmptyValue = (value) => {
-  if (value === null || value === undefined) {
-    return true;
-  }
+import { isEmptyValue, parseNumberValue } from "../utils/numberParsing";
 
-  return String(value).trim() === "";
-};
-
-export const parseNumberValue = (value) => {
-  if (typeof value === "number") {
-    return value;
-  }
-
-  if (typeof value !== "string") {
-    return NaN;
-  }
-
-  const normalized = value.trim().replace(",", ".");
-  if (normalized === "") {
-    return NaN;
-  }
-
-  return parseFloat(normalized);
-};
+export { isEmptyValue, parseNumberValue };
 
 export const requiredNumber = () => (value) => {
   if (isEmptyValue(value)) {
@@ -52,6 +31,23 @@ export const optionalNumber = () => (value) => {
 
   if (parsed < 0) {
     return "Wpisz nieujemna wartosc.";
+  }
+
+  return null;
+};
+
+export const optionalPositiveNumber = () => (value) => {
+  if (isEmptyValue(value)) {
+    return null;
+  }
+
+  const parsed = parseNumberValue(value);
+  if (isNaN(parsed)) {
+    return "Wpisz poprawna wartosc.";
+  }
+
+  if (parsed <= 0) {
+    return "Wpisz dodatnia wartosc.";
   }
 
   return null;
