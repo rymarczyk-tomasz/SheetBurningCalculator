@@ -71,7 +71,12 @@ const GenericForm = ({ fields, errors, hasErrors, onSubmit }) => {
   };
 
   return (
-    <div ref={containerRef}>
+    <form
+      ref={containerRef}
+      autoComplete="off"
+      noValidate
+      onSubmit={(event) => event.preventDefault()}
+    >
       {fields
         .filter((field) => shouldShowField(field.showWhen))
         .map((field) => {
@@ -155,13 +160,16 @@ const GenericForm = ({ fields, errors, hasErrors, onSubmit }) => {
               }}
               onBlur={() => markTouched(field.id)}
               onKeyDown={handleEnterKey}
+              name={field.name}
+              autoComplete={field.autoComplete}
+              inputMode={field.inputMode}
               placeholder={field.placeholder}
               type={field.type || "number"}
               error={fieldError}
             />
           );
         })}
-    </div>
+    </form>
   );
 };
 
@@ -187,6 +195,8 @@ GenericForm.propTypes = {
       wrapperClassName: PropTypes.string,
       labelClassName: PropTypes.string,
       name: PropTypes.string,
+      autoComplete: PropTypes.string,
+      inputMode: PropTypes.string,
     }),
   ).isRequired,
   errors: PropTypes.objectOf(PropTypes.string),

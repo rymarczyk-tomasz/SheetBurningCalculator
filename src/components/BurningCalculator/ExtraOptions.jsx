@@ -39,7 +39,7 @@ export default function ExtraOptions({
           <input
             type="number"
             min="1"
-            name={`hole-diameter-${idx}`}
+            name={`calc-hole-diameter-${idx}`}
             placeholder="Fi (mm)"
             value={hole.diameter}
             onChange={(e) => handleHoleChange(idx, "diameter", e.target.value)}
@@ -52,7 +52,7 @@ export default function ExtraOptions({
           <input
             type="number"
             min="1"
-            name={`hole-count-${idx}`}
+            name={`calc-hole-count-${idx}`}
             placeholder="Ilość"
             value={hole.count}
             onChange={(e) => handleHoleChange(idx, "count", e.target.value)}
@@ -80,7 +80,7 @@ export default function ExtraOptions({
           <input
             type="number"
             min="1"
-            name={`rect-hole-a-${idx}`}
+            name={`calc-rect-hole-a-${idx}`}
             placeholder="Bok A (mm)"
             value={rect.a}
             onChange={(e) => handleRectHoleChange(idx, "a", e.target.value)}
@@ -93,7 +93,7 @@ export default function ExtraOptions({
           <input
             type="number"
             min="1"
-            name={`rect-hole-b-${idx}`}
+            name={`calc-rect-hole-b-${idx}`}
             placeholder="Bok B (mm)"
             value={rect.b}
             onChange={(e) => handleRectHoleChange(idx, "b", e.target.value)}
@@ -106,7 +106,7 @@ export default function ExtraOptions({
           <input
             type="number"
             min="1"
-            name={`rect-hole-count-${idx}`}
+            name={`calc-rect-hole-count-${idx}`}
             placeholder="Ilość"
             value={rect.count}
             onChange={(e) => handleRectHoleChange(idx, "count", e.target.value)}

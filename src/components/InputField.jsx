@@ -8,12 +8,15 @@ const InputField = ({
   onBlur,
   onKeyDown,
   name,
+  autoComplete,
+  inputMode,
   placeholder,
   type,
   error,
 }) => {
   const errorId = error ? `${id}-error` : undefined;
-  const inputName = name || id;
+  const inputName = name || `calc-${id}`;
+  const resolvedAutoComplete = autoComplete || "off";
 
   return (
     <div className="form-group">
@@ -27,7 +30,8 @@ const InputField = ({
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        autoComplete="off"
+        autoComplete={resolvedAutoComplete}
+        inputMode={inputMode}
         aria-invalid={error ? "true" : "false"}
         aria-describedby={errorId}
         required
@@ -49,6 +53,8 @@ InputField.propTypes = {
   onBlur: PropTypes.func,
   onKeyDown: PropTypes.func,
   name: PropTypes.string,
+  autoComplete: PropTypes.string,
+  inputMode: PropTypes.string,
   placeholder: PropTypes.string,
   type: PropTypes.string,
   error: PropTypes.string,
@@ -59,6 +65,8 @@ InputField.defaultProps = {
   onBlur: undefined,
   onKeyDown: undefined,
   name: undefined,
+  autoComplete: undefined,
+  inputMode: undefined,
   error: undefined,
 };
 
