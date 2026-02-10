@@ -23,18 +23,30 @@ const ProcessSelector = ({ process, setProcess }) => {
         <div className="form-group">
             <label>Wybierz proces:</label>
             <div>
-                {processes.map((p) => (
-                    <button
-                        key={p.value}
-                        type="button"
-                        onClick={() => setProcess(p.value)}
-                        className={`process-selector-btn${
-                            process === p.value ? " active" : ""
-                        }`}
-                    >
-                        {p.label}
-                    </button>
-                ))}
+                {processes.map((p) => {
+                    const isWaterjet = p.value === "waterjet";
+                    const isDisabled = isWaterjet;
+                    const isActive = process === p.value && !isDisabled;
+
+                    return (
+                        <button
+                            key={p.value}
+                            type="button"
+                            onClick={() => {
+                                if (!isDisabled) setProcess(p.value);
+                            }}
+                            disabled={isDisabled}
+                            title={
+                                isDisabled ? "Kalkulator w naprawie" : ""
+                            }
+                            className={`process-selector-btn${
+                                isActive ? " active" : ""
+                            }${isDisabled ? " disabled" : ""}`}
+                        >
+                            {p.label}
+                        </button>
+                    );
+                })}
             </div>
         </div>
     );
