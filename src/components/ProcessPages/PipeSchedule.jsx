@@ -194,7 +194,12 @@ export default function PipeSchedule() {
   return (
     <>
       <div className="pipe-schedule-container">
-        <GenericForm fields={fields} errors={errors} />
+        <GenericForm
+          fields={fields}
+          errors={errors}
+          hasErrors={hasErrors}
+          onSubmit={handleCalculate}
+        />
       </div>
 
       <button onClick={handleCalculate} disabled={loading || hasErrors}>

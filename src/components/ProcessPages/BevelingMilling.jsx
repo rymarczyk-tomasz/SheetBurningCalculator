@@ -152,9 +152,19 @@ export default function BevelingMilling() {
 
   return (
     <>
-      <GenericForm fields={sideFields} errors={sideErrors} />
+      <GenericForm
+        fields={sideFields}
+        errors={sideErrors}
+        hasErrors={hasErrors}
+        onSubmit={handleCalculate}
+      />
       <ShapeSelector shape={shape} setShape={setShape} isCutting={false} />
-      <GenericForm fields={mainFields} errors={mainErrors} />
+      <GenericForm
+        fields={mainFields}
+        errors={mainErrors}
+        hasErrors={hasErrors}
+        onSubmit={handleCalculate}
+      />
       <button onClick={handleCalculate} disabled={hasErrors}>
         Oblicz
       </button>

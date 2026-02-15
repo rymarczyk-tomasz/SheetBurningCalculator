@@ -144,7 +144,12 @@ export default function WaterjetCalculator() {
 
   return (
     <>
-      <GenericForm fields={typeFields} errors={typeErrors} />
+      <GenericForm
+        fields={typeFields}
+        errors={typeErrors}
+        hasErrors={hasErrors}
+        onSubmit={handleCalculate}
+      />
 
       <ShapeSelector shape={shape} setShape={setShape} isCutting={false} />
 

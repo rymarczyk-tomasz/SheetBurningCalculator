@@ -122,7 +122,12 @@ export default function Tempering() {
 
   return (
     <>
-      <GenericForm fields={fields} errors={errors} />
+      <GenericForm
+        fields={fields}
+        errors={errors}
+        hasErrors={hasErrors}
+        onSubmit={handleCalculate}
+      />
       <button onClick={handleCalculate} disabled={hasErrors}>
         Oblicz
       </button>

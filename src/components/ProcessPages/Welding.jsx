@@ -298,10 +298,20 @@ export default function Welding() {
   return (
     <>
       <div className="welding-selectors">
-        <GenericForm fields={selectorFields} errors={selectorErrors} />
+        <GenericForm
+          fields={selectorFields}
+          errors={selectorErrors}
+          hasErrors={hasErrors}
+          onSubmit={handleCalculate}
+        />
       </div>
 
-      <GenericForm fields={lengthFields} errors={lengthErrors} />
+      <GenericForm
+        fields={lengthFields}
+        errors={lengthErrors}
+        hasErrors={hasErrors}
+        onSubmit={handleCalculate}
+      />
 
       <div className="welding-actions">
         <button onClick={handleCalculate} disabled={loading || hasErrors}>
