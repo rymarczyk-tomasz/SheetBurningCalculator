@@ -14,6 +14,7 @@ import {
   loadCalculation,
   saveCalculation,
 } from "../../utils/calculationStorage";
+import useSharedShape from "../../hooks/useSharedShape";
 
 async function getGrindingMultiplier(thickness) {
   try {
@@ -62,7 +63,7 @@ async function getGrindingMultiplier(thickness) {
 }
 
 export default function GrindingAfterBurning() {
-  const [shape, setShape] = useState("rectangle");
+  const [shape, setShape] = useSharedShape();
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [outerDiameter, setOuterDiameter] = useState("");
@@ -75,7 +76,6 @@ export default function GrindingAfterBurning() {
   useEffect(() => {
     const stored = loadCalculation("grindingAfterBurning");
     if (stored) {
-      setShape(stored.shape ?? "rectangle");
       setLength(stored.length ?? "");
       setWidth(stored.width ?? "");
       setOuterDiameter(stored.outerDiameter ?? "");
@@ -86,7 +86,6 @@ export default function GrindingAfterBurning() {
       return;
     }
 
-    setShape("rectangle");
     setLength("");
     setWidth("");
     setOuterDiameter("");

@@ -15,9 +15,10 @@ import {
   loadCalculation,
   saveCalculation,
 } from "../../utils/calculationStorage";
+import useSharedShape from "../../hooks/useSharedShape";
 
 export default function Deburring() {
-  const [shape, setShape] = useState("rectangle");
+  const [shape, setShape] = useSharedShape();
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [outerDiameter, setOuterDiameter] = useState("");
@@ -31,7 +32,6 @@ export default function Deburring() {
   useEffect(() => {
     const stored = loadCalculation("deburring");
     if (stored) {
-      setShape(stored.shape ?? "rectangle");
       setLength(stored.length ?? "");
       setWidth(stored.width ?? "");
       setOuterDiameter(stored.outerDiameter ?? "");
@@ -44,7 +44,6 @@ export default function Deburring() {
       return;
     }
 
-    setShape("rectangle");
     setLength("");
     setWidth("");
     setOuterDiameter("");

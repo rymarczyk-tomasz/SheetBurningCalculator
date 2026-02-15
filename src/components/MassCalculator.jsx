@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import GenericForm from "./GenericForm";
 import { getFormErrors } from "./formValidation";
 import { getMassCalculatorFields } from "./MassCalculator.form";
+import useSharedShape from "../hooks/useSharedShape";
 
 export default function MassCalculator({
   onMassUpdate,
@@ -13,7 +14,7 @@ export default function MassCalculator({
   showRodShape = false,
   clearSignal = 0,
 }) {
-  const [shape, setShape] = useState("rectangle");
+  const [shape, setShape] = useSharedShape();
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [outerDiameter, setOuterDiameter] = useState("");

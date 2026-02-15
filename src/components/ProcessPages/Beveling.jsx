@@ -14,6 +14,7 @@ import {
   loadCalculation,
   saveCalculation,
 } from "../../utils/calculationStorage";
+import useSharedShape from "../../hooks/useSharedShape";
 
 async function getBevelingMultiplier(thickness) {
   try {
@@ -63,7 +64,7 @@ async function getBevelingMultiplier(thickness) {
 }
 
 export default function Beveling() {
-  const [shape, setShape] = useState("rectangle");
+  const [shape, setShape] = useSharedShape();
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [outerDiameter, setOuterDiameter] = useState("");
@@ -77,7 +78,6 @@ export default function Beveling() {
   useEffect(() => {
     const stored = loadCalculation("beveling");
     if (stored) {
-      setShape(stored.shape ?? "rectangle");
       setLength(stored.length ?? "");
       setWidth(stored.width ?? "");
       setOuterDiameter(stored.outerDiameter ?? "");
@@ -89,7 +89,6 @@ export default function Beveling() {
       return;
     }
 
-    setShape("rectangle");
     setLength("");
     setWidth("");
     setOuterDiameter("");

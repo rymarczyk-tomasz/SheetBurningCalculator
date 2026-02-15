@@ -17,9 +17,10 @@ import {
   loadCalculation,
   saveCalculation,
 } from "../../utils/calculationStorage";
+import useSharedShape from "../../hooks/useSharedShape";
 
 export default function BevelingMilling() {
-  const [shape, setShape] = useState("rectangle");
+  const [shape, setShape] = useSharedShape();
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [outerDiameter, setOuterDiameter] = useState("");
@@ -32,7 +33,6 @@ export default function BevelingMilling() {
   useEffect(() => {
     const stored = loadCalculation("bevelingMilling");
     if (stored) {
-      setShape(stored.shape ?? "rectangle");
       setLength(stored.length ?? "");
       setWidth(stored.width ?? "");
       setOuterDiameter(stored.outerDiameter ?? "");
@@ -44,7 +44,6 @@ export default function BevelingMilling() {
       return;
     }
 
-    setShape("rectangle");
     setLength("");
     setWidth("");
     setOuterDiameter("");

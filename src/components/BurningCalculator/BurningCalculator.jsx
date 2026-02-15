@@ -13,12 +13,13 @@ import {
   saveCalculation,
 } from "../../utils/calculationStorage";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import useSharedShape from "../../hooks/useSharedShape";
 
 const STORAGE_KEY = "app:burning";
 
 export default function BurningCalculator() {
   const restoringRef = useRef(false);
-  const [shape, setShape] = useState("rectangle");
+  const [shape, setShape] = useSharedShape();
   const [length, setLength] = useState("");
   const [width, setWidth] = useState("");
   const [outerDiameter, setOuterDiameter] = useState("");
@@ -46,7 +47,6 @@ export default function BurningCalculator() {
     const stored = loadCalculation(STORAGE_KEY);
     if (stored) {
       restoringRef.current = true;
-      setShape(stored.shape || "rectangle");
       setLength(stored.length ?? "");
       setWidth(stored.width ?? "");
       setOuterDiameter(stored.outerDiameter ?? "");
