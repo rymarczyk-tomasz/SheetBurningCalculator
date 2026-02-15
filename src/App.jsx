@@ -19,7 +19,7 @@ import Welding from "./components/ProcessPages/Welding";
 import PipeSchedule from "./components/ProcessPages/PipeSchedule";
 
 function App() {
-  const [process, setProcess] = useState("burni3ng");
+  const [process, setProcess] = useState("burning");
 
   return (
     <div className="container">
