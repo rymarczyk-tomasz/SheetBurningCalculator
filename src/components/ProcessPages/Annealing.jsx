@@ -1,57 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import { annealingKrometData } from "../../data/annealingKrometData";
 import MassCalculator from "../MassCalculator";
+import { useCSVTable, findClosest } from "../../hooks/useCSVTable";
 
 export default function Annealing() {
     const [mass, setMass] = useState("");
     const [thickness, setThickness] = useState("");
     const [result, setResult] = useState(null);
-    const [csvData, setCsvData] = useState(null);
     const [furnace, setFurnace] = useState("MAAG");
     const [clearCounter, setClearCounter] = useState(0);
 
-    useEffect(() => {
-        if (furnace === "MAAG") {
-            fetch("/SheetBurningCalculator/1000033414_20250702101659.csv")
-                .then((res) => {
-                    if (!res.ok)
-                        throw new Error("Nie można załadować pliku CSV");
-                    return res.text();
-                })
-                .then((text) => {
-                    setCsvData(parseCSV(text));
-                })
-                .catch((err) =>
-                    setResult("Błąd ładowania pliku CSV: " + err.message)
-                );
-        }
-    }, [furnace]);
-
-    function parseCSV(text) {
-        const rows = text
-            .trim()
-            .split("\n")
-            .map((row) => row.split(","));
-        const thicknesses = rows[0].slice(1).map(Number);
-        const data = rows.slice(1).map((row) => ({
-            mass: Number(row[0]),
-            times: row.slice(1).map((val) => (val ? Number(val) : null)),
-        }));
-        return { thicknesses, data };
-    }
-
-    const findClosest = (arr, value) => {
-        return arr.reduce(
-            (bestIdx, curr, idx, a) =>
-                Math.abs(curr - value) < Math.abs(a[bestIdx] - value)
-                    ? idx
-                    : bestIdx,
-            0
-        );
-    };
+    const { csvData, error: csvError } = useCSVTable(
+        furnace === "MAAG"
+            ? `${import.meta.env.BASE_URL}1000033414_20250702101659.csv`
+            : null,
+    );
 
     const handleCalculate = () => {
         if (!mass || (furnace === "MAAG" && !thickness)) {
@@ -59,40 +25,49 @@ export default function Annealing() {
             return;
         }
 
+        const massVal = parseFloat(mass);
+        if (isNaN(massVal) || massVal <= 0) {
+            setResult("Podaj prawidłową masę.");
+            return;
+        }
+
         if (furnace === "KROMET") {
-            const massVal = parseFloat(mass);
-            if (isNaN(massVal) || massVal <= 0) {
-                setResult("Podaj prawidłową masę.");
-                return;
-            }
             if (massVal <= 1000) {
                 const idx = findClosest(
                     annealingKrometData.map((d) => d.kg),
-                    massVal
+                    massVal,
                 );
                 const time = annealingKrometData[idx]?.time;
                 setResult(`Czas wyżarzania (KROMET): ${time} h`);
             } else {
-                const hours = Math.floor(massVal / 1000);
+                // Dla mas powyżej 1000 kg: 1 h na każde pełne 1000 kg
+                const hours = Math.ceil(massVal / 1000);
                 setResult(`Czas wyżarzania (KROMET): ${hours} h`);
             }
             return;
         }
 
-        if (!csvData || !csvData.data || csvData.data.length === 0) {
+        if (csvError) {
+            setResult(csvError);
+            return;
+        }
+        if (!csvData || !csvData.data.length) {
             setResult("Ładowanie danych lub brak danych w pliku CSV.");
             return;
         }
-        const { thicknesses, data } = csvData;
-        const massVal = parseFloat(mass);
-        const thicknessVal = parseFloat(thickness);
 
+        const thicknessVal = parseFloat(thickness);
+        if (isNaN(thicknessVal) || thicknessVal <= 0) {
+            setResult("Podaj prawidłową grubość.");
+            return;
+        }
+
+        const { thicknesses, data } = csvData;
         const massIdx = findClosest(
             data.map((d) => d.mass),
-            massVal
+            massVal,
         );
         const thicknessIdx = findClosest(thicknesses, thicknessVal);
-
         const time = data[massIdx]?.times[thicknessIdx];
 
         if (time == null) {
@@ -110,14 +85,7 @@ export default function Annealing() {
         setClearCounter((c) => c + 1);
     };
 
-    const handleMassUpdate = (value) => {
-        setMass(value);
-    };
-
-    useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
-    });
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
@@ -150,7 +118,7 @@ export default function Annealing() {
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
             <MassCalculator
-                onMassUpdate={handleMassUpdate}
+                onMassUpdate={setMass}
                 onThicknessUpdate={setThickness}
                 thickness={thickness}
                 showRodShape={true}

@@ -1,5 +1,6 @@
-import React from "react";
+import { useState } from "react";
 import ShapeSelector from "../ShapeSelector";
+import ShapeDimensionFields from "../ShapeDimensionFields";
 import InputField from "../InputField";
 import Result from "../Result";
 import ExtraOptions from "./ExtraOptions";
@@ -26,9 +27,8 @@ export default function BurningCalculator({
     result,
     handleCalculate,
     handleClear,
-    extraOptionsVisible,
-    setExtraOptionsVisible,
 }) {
+    const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
     return (
         <>
             <ShapeSelector
@@ -54,53 +54,19 @@ export default function BurningCalculator({
                 )}
             </div>
 
-            {shape === "rectangle" && (
-                <>
-                    <InputField
-                        id="length"
-                        label="Długość boku A (mm):"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="width"
-                        label="Długość boku B (mm):"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {(shape === "circle" || shape === "semicircle") && (
-                <>
-                    <InputField
-                        id="outerDiameter"
-                        label="Fi zewnętrzne (mm):"
-                        value={outerDiameter}
-                        onChange={(e) => setOuterDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="innerDiameter"
-                        label="Fi wewnętrzne (mm):"
-                        value={innerDiameter}
-                        onChange={(e) => setInnerDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {shape === "totalLength" && (
-                <InputField
-                    id="totalLength"
-                    label="Całkowita długość boków (mm):"
-                    value={totalLength}
-                    onChange={(e) => setTotalLength(e.target.value)}
-                    placeholder="Wpisz całkowitą długość w mm"
-                />
-            )}
+            <ShapeDimensionFields
+                shape={shape}
+                length={length}
+                setLength={setLength}
+                width={width}
+                setWidth={setWidth}
+                outerDiameter={outerDiameter}
+                setOuterDiameter={setOuterDiameter}
+                innerDiameter={innerDiameter}
+                setInnerDiameter={setInnerDiameter}
+                totalLength={totalLength}
+                setTotalLength={setTotalLength}
+            />
 
             <InputField
                 id="thickness"

@@ -38,7 +38,6 @@ function App() {
     const [rectHoles, setRectHoles] = useState([{ a: "", b: "", count: "" }]);
     const [waterjetType, setWaterjetType] = useState("czarna");
 
-    const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
     const [result, setResult] = useState("");
 
     const clearFields = () => {
@@ -107,9 +106,13 @@ function App() {
         clearFields();
     };
 
+    // Strony procesów spoza tej listy obsługują Enter/Escape samodzielnie (useKeyShortcuts w ProcessPages)
+    const isAppManagedProcess =
+        process === "burning" || process === "saw" || process === "waterjet";
+
     useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
+        onEnter: isAppManagedProcess ? handleCalculate : undefined,
+        onEscape: isAppManagedProcess ? handleClear : undefined,
     });
 
     return (
@@ -141,8 +144,6 @@ function App() {
                         result={result}
                         handleCalculate={handleCalculate}
                         handleClear={handleClear}
-                        extraOptionsVisible={extraOptionsVisible}
-                        setExtraOptionsVisible={setExtraOptionsVisible}
                     />
                 )}
 
@@ -185,8 +186,6 @@ function App() {
                         result={result}
                         handleCalculate={handleCalculate}
                         handleClear={handleClear}
-                        extraOptionsVisible={extraOptionsVisible}
-                        setExtraOptionsVisible={setExtraOptionsVisible}
                     />
                 )}
 

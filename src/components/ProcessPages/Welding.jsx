@@ -1,22 +1,20 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import InputField from "../InputField";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { loadCsvRows } from "../../utils/loadCsv";
 
 async function loadSpawanieCSV() {
     try {
-        const res = await fetch("/SheetBurningCalculator/spawanie.csv");
-        const text = await res.text();
-        const lines = text
-            .split(/\r?\n/)
-            .map((l) => l.trim())
-            .filter((l) => l);
-        if (!lines.length) return { types: [], table: [] };
-        const header = lines[0].split(",").map((h) => h.trim());
+        const rows = await loadCsvRows(
+            `${import.meta.env.BASE_URL}spawanie.csv`,
+        );
+        if (!rows.length) return { types: [], table: [] };
+        const header = rows[0].map((h) => h.trim());
         const typeCols = header.slice(1);
         const parsed = [];
-        for (let i = 1; i < lines.length; i++) {
-            const cols = lines[i].split(",").map((c) => c.trim());
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i].map((c) => c.trim());
             const size = parseFloat(cols[0]);
             if (isNaN(size)) continue;
             const values = {};
@@ -140,6 +138,7 @@ export default function Welding() {
             PD: 1.6,
             PE: 2.0,
         };
+        // Note: PG maps to 1.5 and PD maps to 1.6 — same factors as PF and PC respectively
         return map[pos] ?? 1.0;
     }
 
@@ -161,7 +160,7 @@ export default function Welding() {
         }
         if (!weldPosition) {
             setResult(
-                "Proszę wybrać pozycję spawania (PA, PB, PF, PG, PC, PD, PE)."
+                "Proszę wybrać pozycję spawania (PA, PB, PF, PG, PC, PD, PE).",
             );
             return;
         }
@@ -187,13 +186,13 @@ export default function Welding() {
 
         const baseMultiplier = getMultiplierFromTable(
             lookupSizeRounded,
-            lookupColumn
+            lookupColumn,
         );
         setLoading(false);
 
         if (baseMultiplier === null || baseMultiplier === undefined) {
             setResult(
-                "Brak wartości normatywnej dla wybranego typu/wielkości spoiny (po przeliczeniu, jeśli dotyczy)."
+                "Brak wartości normatywnej dla wybranego typu/wielkości spoiny (po przeliczeniu, jeśli dotyczy).",
             );
             return;
         }
@@ -214,8 +213,8 @@ export default function Welding() {
 
         setResult(
             `Szacowany czas spawania (${chosenLabel}) w pozycji ${weldPosition}: ${timeHours.toFixed(
-                2
-            )} h.`
+                2,
+            )} h.`,
         );
     }
 
@@ -223,7 +222,9 @@ export default function Welding() {
         setTotalLength("");
         setResult("");
         setWeldType(
-            types.includes("pachwina") ? "pachwina_a" : types[0] || "pachwina_a"
+            types.includes("pachwina")
+                ? "pachwina_a"
+                : types[0] || "pachwina_a",
         );
         setWeldSize("");
         setWeldPosition("PA");
@@ -262,9 +263,9 @@ export default function Welding() {
                         <option value="PA">PA</option>
                         <option value="PB">PB</option>
                         <option value="PF">PF</option>
-                        <option value="PF">PG</option>
+                        <option value="PG">PG</option>
                         <option value="PC">PC</option>
-                        <option value="PC">PD</option>
+                        <option value="PD">PD</option>
                         <option value="PE">PE</option>
                     </select>
                 </label>

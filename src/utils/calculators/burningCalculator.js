@@ -1,7 +1,4 @@
-import { calculateRectangle } from "../calculateRectangle";
-import { calculateSemiCircle } from "../calculateSemiCircle";
-import { calculateTotalLength } from "../calculateTotalLength";
-import { calculateCircle } from "../calculateCircle"; // Import calculateCircle
+import { calculateByShape } from "../calculateByShape";
 import { getThicknessMultiplier } from "../getThicknessMultiplier";
 
 export function burningCalculator({
@@ -15,7 +12,7 @@ export function burningCalculator({
     holes,
     rectHoles,
 }) {
-    const thicknessValue = parseInt(thickness);
+    const thicknessValue = parseInt(thickness, 10);
     if (isNaN(thicknessValue) || thicknessValue <= 0) {
         return "Proszę podać prawidłową grubość blachy (1-400 mm).";
     }
@@ -27,30 +24,11 @@ export function burningCalculator({
     let result = 0;
 
     try {
-        switch (shape) {
-            case "rectangle":
-                result = calculateRectangle(length, width, multiplier);
-                break;
-            case "circle":
-                result = calculateCircle(
-                    outerDiameter,
-                    innerDiameter,
-                    multiplier
-                );
-                break;
-            case "semicircle":
-                result = calculateSemiCircle(
-                    outerDiameter,
-                    innerDiameter,
-                    multiplier
-                );
-                break;
-            case "totalLength":
-                result = calculateTotalLength(totalLength, multiplier);
-                break;
-            default:
-                return "Nieobsługiwany kształt.";
-        }
+        result = calculateByShape(
+            shape,
+            { length, width, outerDiameter, innerDiameter, totalLength },
+            multiplier,
+        );
     } catch (error) {
         return error.message;
     }
@@ -59,7 +37,7 @@ export function burningCalculator({
 
     holes.forEach(({ diameter, count }) => {
         const d = parseFloat(diameter);
-        const c = parseInt(count);
+        const c = parseInt(count, 10);
         if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
             extraLength += Math.PI * d * c;
         }
@@ -68,7 +46,7 @@ export function burningCalculator({
     rectHoles.forEach(({ a, b, count }) => {
         const aa = parseFloat(a);
         const bb = parseFloat(b);
-        const c = parseInt(count);
+        const c = parseInt(count, 10);
         if (aa > 0 && bb > 0 && c > 0) {
             extraLength += 2 * (aa + bb) * c;
         }

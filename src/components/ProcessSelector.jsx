@@ -3,7 +3,12 @@ import PropTypes from "prop-types";
 const processes = [
     { value: "burning", label: "Palenie" },
     { value: "saw", label: "Cięcie" },
-    { value: "waterjet", label: "Cięcie wodą" },
+    {
+        value: "waterjet",
+        label: "Cięcie wodą",
+        disabled: true,
+        disabledReason: "Kalkulator w naprawie",
+    },
     { value: "hardening", label: "Hartowanie" },
     { value: "nitriding", label: "Azotowanie" },
     { value: "annealing", label: "Wyżarzanie" },
@@ -27,7 +32,9 @@ const ProcessSelector = ({ process, setProcess }) => {
                     <button
                         key={p.value}
                         type="button"
-                        onClick={() => setProcess(p.value)}
+                        onClick={() => !p.disabled && setProcess(p.value)}
+                        disabled={p.disabled}
+                        title={p.disabled ? p.disabledReason : undefined}
                         className={`process-selector-btn${
                             process === p.value ? " active" : ""
                         }`}

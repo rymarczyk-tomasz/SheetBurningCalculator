@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function ExtraOptions({
     holes,
     setHoles,
@@ -7,18 +5,22 @@ export default function ExtraOptions({
     setRectHoles,
 }) {
     const handleHoleChange = (idx, field, value) => {
-        const updated = [...holes];
-        updated[idx][field] = value;
-        setHoles(updated);
+        setHoles(
+            holes.map((hole, i) =>
+                i === idx ? { ...hole, [field]: value } : hole,
+            ),
+        );
     };
 
     const addHole = () => setHoles([...holes, { diameter: "", count: "" }]);
     const removeHole = (idx) => setHoles(holes.filter((_, i) => i !== idx));
 
     const handleRectHoleChange = (idx, field, value) => {
-        const updated = [...rectHoles];
-        updated[idx][field] = value;
-        setRectHoles(updated);
+        setRectHoles(
+            rectHoles.map((rect, i) =>
+                i === idx ? { ...rect, [field]: value } : rect,
+            ),
+        );
     };
 
     const addRectHole = () =>

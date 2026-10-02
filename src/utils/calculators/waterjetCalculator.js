@@ -1,14 +1,11 @@
-import { calculateRectangle } from "../calculateRectangle";
-import { calculateSemiCircle } from "../calculateSemiCircle";
-import { calculateTotalLength } from "../calculateTotalLength";
-import { calculateCircle } from "../calculateCircle"; // Import calculateCircle
+import { calculateByShape } from "../calculateByShape";
 import { waterjetCuttingData } from "../../data/waterjetCuttingData";
 
 export function getWaterjetMultiplier(type, thickness) {
     const typeData = waterjetCuttingData.find((t) => t.type === type);
     if (!typeData) return null;
     const found = typeData.data.find(
-        (row) => thickness >= row.minThickness && thickness <= row.maxThickness
+        (row) => thickness >= row.minThickness && thickness <= row.maxThickness,
     );
     return found ? found.multiplier : null;
 }
@@ -37,30 +34,11 @@ export function waterjetCalculator({
 
     let result = 0;
     try {
-        switch (shape) {
-            case "rectangle":
-                result = calculateRectangle(length, width, multiplier);
-                break;
-            case "circle":
-                result = calculateCircle(
-                    outerDiameter,
-                    innerDiameter,
-                    multiplier
-                );
-                break;
-            case "semicircle":
-                result = calculateSemiCircle(
-                    outerDiameter,
-                    innerDiameter,
-                    multiplier
-                );
-                break;
-            case "totalLength":
-                result = calculateTotalLength(totalLength, multiplier);
-                break;
-            default:
-                return "Nieobsługiwany kształt.";
-        }
+        result = calculateByShape(
+            shape,
+            { length, width, outerDiameter, innerDiameter, totalLength },
+            multiplier,
+        );
     } catch (error) {
         return error.message;
     }
@@ -69,7 +47,7 @@ export function waterjetCalculator({
 
     holes.forEach(({ diameter, count }) => {
         const d = parseFloat(diameter);
-        const c = parseInt(count);
+        const c = parseInt(count, 10);
         if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
             extraLength += Math.PI * d * c;
         }
@@ -78,7 +56,7 @@ export function waterjetCalculator({
     rectHoles.forEach(({ a, b, count }) => {
         const aa = parseFloat(a);
         const bb = parseFloat(b);
-        const c = parseInt(count);
+        const c = parseInt(count, 10);
         if (aa > 0 && bb > 0 && c > 0) {
             extraLength += 2 * (aa + bb) * c;
         }

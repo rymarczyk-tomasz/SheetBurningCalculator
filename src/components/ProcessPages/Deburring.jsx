@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import ShapeSelector from "../ShapeSelector";
-import InputField from "../InputField";
+import ShapeDimensionFields from "../ShapeDimensionFields";
 import Result from "../Result";
 import ExtraOptions from "../BurningCalculator/ExtraOptions";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
-import { calculateRectangle } from "../../utils/calculateRectangle";
-import { calculateCircle } from "../../utils/calculateCircle";
-import { calculateSemiCircle } from "../../utils/calculateSemiCircle";
-import { calculateTotalLength } from "../../utils/calculateTotalLength";
+import { calculateByShape } from "../../utils/calculateByShape";
 
 export default function Deburring() {
     const [shape, setShape] = useState("rectangle");
@@ -21,48 +18,16 @@ export default function Deburring() {
     const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
     const [result, setResult] = useState("");
 
-    useEffect(() => {
-        setShape("rectangle");
-        setLength("");
-        setWidth("");
-        setOuterDiameter("");
-        setInnerDiameter("");
-        setTotalLength("");
-        setHoles([{ diameter: "", count: "" }]);
-        setRectHoles([{ a: "", b: "", count: "" }]);
-        setResult("");
-    }, []);
-
     function handleCalculate() {
         const multiplier = 0.03;
 
         let value = 0;
         try {
-            switch (shape) {
-                case "rectangle":
-                    value = calculateRectangle(length, width, multiplier);
-                    break;
-                case "circle":
-                    value = calculateCircle(
-                        outerDiameter,
-                        innerDiameter,
-                        multiplier
-                    );
-                    break;
-                case "semicircle":
-                    value = calculateSemiCircle(
-                        outerDiameter,
-                        innerDiameter,
-                        multiplier
-                    );
-                    break;
-                case "totalLength":
-                    value = calculateTotalLength(totalLength, multiplier);
-                    break;
-                default:
-                    setResult("Nieobsługiwany kształt.");
-                    return;
-            }
+            value = calculateByShape(
+                shape,
+                { length, width, outerDiameter, innerDiameter, totalLength },
+                multiplier,
+            );
         } catch (err) {
             setResult(err.message);
             return;
@@ -71,7 +36,7 @@ export default function Deburring() {
         let extraLength = 0;
         holes.forEach(({ diameter, count }) => {
             const d = parseFloat(diameter);
-            const c = parseInt(count);
+            const c = parseInt(count, 10);
             if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
                 extraLength += Math.PI * d * c;
             }
@@ -79,7 +44,7 @@ export default function Deburring() {
         rectHoles.forEach(({ a, b, count }) => {
             const aa = parseFloat(a);
             const bb = parseFloat(b);
-            const c = parseInt(count);
+            const c = parseInt(count, 10);
             if (aa > 0 && bb > 0 && c > 0) {
                 extraLength += 2 * (aa + bb) * c;
             }
@@ -131,51 +96,19 @@ export default function Deburring() {
                     />
                 )}
             </div>
-            {shape === "rectangle" && (
-                <>
-                    <InputField
-                        id="length"
-                        label="Długość boku A (mm):"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="width"
-                        label="Długość boku B (mm):"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-            {(shape === "circle" || shape === "semicircle") && (
-                <>
-                    <InputField
-                        id="outerDiameter"
-                        label="Fi zewnętrzne (mm):"
-                        value={outerDiameter}
-                        onChange={(e) => setOuterDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="innerDiameter"
-                        label="Fi wewnętrzne (mm):"
-                        value={innerDiameter}
-                        onChange={(e) => setInnerDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-            {shape === "totalLength" && (
-                <InputField
-                    id="totalLength"
-                    label="Całkowita długość boków (mm):"
-                    value={totalLength}
-                    onChange={(e) => setTotalLength(e.target.value)}
-                    placeholder="Wpisz całkowitą długość w mm"
-                />
-            )}
+            <ShapeDimensionFields
+                shape={shape}
+                length={length}
+                setLength={setLength}
+                width={width}
+                setWidth={setWidth}
+                outerDiameter={outerDiameter}
+                setOuterDiameter={setOuterDiameter}
+                innerDiameter={innerDiameter}
+                setInnerDiameter={setInnerDiameter}
+                totalLength={totalLength}
+                setTotalLength={setTotalLength}
+            />
             <button onClick={handleCalculate}>Oblicz</button>
             <button onClick={handleClear}>Wyczyść</button>
             <Result result={result} />

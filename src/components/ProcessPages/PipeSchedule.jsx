@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Result from "../Result";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { loadCsvRows } from "../../utils/loadCsv";
 
 const NOMINAL_SIZE_MAP = {
     0.25: "1/4",
@@ -42,26 +43,24 @@ const NOMINAL_SIZE_MAP = {
 
 async function loadPipeCSV() {
     try {
-        const res = await fetch("/SheetBurningCalculator/pipe_diametes.csv");
-        if (!res.ok) throw new Error("Nie można załadować pliku CSV");
+        const rows = await loadCsvRows(
+            `${import.meta.env.BASE_URL}pipe_diametes.csv`,
+        );
+        if (!rows.length) return { schedules: [], data: [] };
 
-        const text = await res.text();
-        const lines = text.split(/\r?\n/).filter((l) => l.trim());
-        if (!lines.length) return { schedules: [], data: [] };
-
-        const header = lines[0].split(",").map((h) => h.trim());
+        const header = rows[0].map((h) => h.trim());
         const scheduleHeaders = header.slice(2);
 
-        const data = lines
+        const data = rows
             .slice(1)
-            .map((line) => {
-                const cols = line.split(",").map((c) => c.trim());
-                const [nominalSize, outerDiamStr] = cols;
+            .map((cols) => {
+                const trimmed = cols.map((c) => c.trim());
+                const [nominalSize, outerDiamStr] = trimmed;
                 if (!nominalSize) return null;
 
                 const values = {};
                 header.slice(2).forEach((scheduleLabel, idx) => {
-                    const val = cols[idx + 2];
+                    const val = trimmed[idx + 2];
                     values[scheduleLabel] =
                         val && val !== "" ? parseFloat(val) : null;
                 });
@@ -106,7 +105,7 @@ export default function PipeSchedule() {
         const normalized = input.trim().replace(",", ".");
 
         const exact = pipeData.find(
-            (d) => d.nominalSize.toLowerCase() === normalized.toLowerCase()
+            (d) => d.nominalSize.toLowerCase() === normalized.toLowerCase(),
         );
         if (exact) return exact.nominalSize;
 
@@ -114,7 +113,7 @@ export default function PipeSchedule() {
         if (!isNaN(decimal) && NOMINAL_SIZE_MAP[decimal]) {
             const mapped = NOMINAL_SIZE_MAP[decimal];
             const found = pipeData.find(
-                (d) => d.nominalSize.toLowerCase() === mapped.toLowerCase()
+                (d) => d.nominalSize.toLowerCase() === mapped.toLowerCase(),
             );
             if (found) return found.nominalSize;
         }
@@ -135,7 +134,7 @@ export default function PipeSchedule() {
         }
 
         const pipeEntry = pipeData.find(
-            (d) => d.nominalSize.toLowerCase() === normalized.toLowerCase()
+            (d) => d.nominalSize.toLowerCase() === normalized.toLowerCase(),
         );
 
         const thickness = pipeEntry?.values[schedule];
@@ -149,7 +148,7 @@ export default function PipeSchedule() {
             : `${thickness}`;
 
         setResult(
-            `Wymiary rury (${normalized}, ${schedule}): ${diamDisplay} mm`
+            `Wymiary rury (${normalized}, ${schedule}): ${diamDisplay} mm`,
         );
     };
 

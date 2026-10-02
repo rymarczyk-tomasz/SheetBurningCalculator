@@ -50,6 +50,10 @@ button {
     background: #1976d2;
     color: #fff;
 }
+.process-selector-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
 .waterjet-type-group {
     display: flex;
     gap: 16px;
