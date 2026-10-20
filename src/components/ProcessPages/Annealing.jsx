@@ -1,129 +1,75 @@
-import React, { useState, useEffect } from "react";
+import { useId, useState } from "react";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
-import useKeyShortcuts from "../../hooks/useKeyShortcuts";
-import { annealingKrometData } from "../../data/annealingKrometData";
 import MassCalculator from "../MassCalculator";
+import useCalculation from "../../hooks/useCalculation";
+import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { useCSVTable } from "../../hooks/useCSVTable";
+import { UserError } from "../../utils/errors";
+import { parsePositive } from "../../utils/parseNumber";
+import { lookupMassThickness } from "../../utils/tableLookup";
+import { timeResultLine } from "../../utils/resultLine";
+import { krometAnnealingTime, MAAG_TIME_FACTOR } from "../../utils/annealing";
+
+const MAAG_CSV_URL = `${import.meta.env.BASE_URL}obrobka_cieplna.csv`;
 
 export default function Annealing() {
+    const furnaceSelectId = useId();
     const [mass, setMass] = useState("");
     const [thickness, setThickness] = useState("");
-    const [result, setResult] = useState(null);
-    const [csvData, setCsvData] = useState(null);
     const [furnace, setFurnace] = useState("MAAG");
     const [clearCounter, setClearCounter] = useState(0);
+    const { result, run, clearResult, pending } = useCalculation();
 
-    useEffect(() => {
-        if (furnace === "MAAG") {
-            fetch("/SheetBurningCalculator/1000033414_20250702101659.csv")
-                .then((res) => {
-                    if (!res.ok)
-                        throw new Error("Nie można załadować pliku CSV");
-                    return res.text();
-                })
-                .then((text) => {
-                    setCsvData(parseCSV(text));
-                })
-                .catch((err) =>
-                    setResult("Błąd ładowania pliku CSV: " + err.message)
+    const { csvData, error: csvError } = useCSVTable(
+        furnace === "MAAG" ? MAAG_CSV_URL : null,
+    );
+
+    const handleCalculate = () =>
+        run(() => {
+            const massValue = parsePositive(mass, "Podaj prawidłową masę.");
+
+            if (furnace === "KROMET") {
+                const krometTime = krometAnnealingTime(massValue);
+                return timeResultLine(
+                    `Czas wyżarzania (KROMET): ${krometTime} h`,
+                    krometTime,
                 );
-        }
-    }, [furnace]);
-
-    function parseCSV(text) {
-        const rows = text
-            .trim()
-            .split("\n")
-            .map((row) => row.split(","));
-        const thicknesses = rows[0].slice(1).map(Number);
-        const data = rows.slice(1).map((row) => ({
-            mass: Number(row[0]),
-            times: row.slice(1).map((val) => (val ? Number(val) : null)),
-        }));
-        return { thicknesses, data };
-    }
-
-    const findClosest = (arr, value) => {
-        return arr.reduce(
-            (bestIdx, curr, idx, a) =>
-                Math.abs(curr - value) < Math.abs(a[bestIdx] - value)
-                    ? idx
-                    : bestIdx,
-            0
-        );
-    };
-
-    const handleCalculate = () => {
-        if (!mass || (furnace === "MAAG" && !thickness)) {
-            setResult("Uzupełnij wszystkie pola.");
-            return;
-        }
-
-        if (furnace === "KROMET") {
-            const massVal = parseFloat(mass);
-            if (isNaN(massVal) || massVal <= 0) {
-                setResult("Podaj prawidłową masę.");
-                return;
             }
-            if (massVal <= 1000) {
-                const idx = findClosest(
-                    annealingKrometData.map((d) => d.kg),
-                    massVal
-                );
-                const time = annealingKrometData[idx]?.time;
-                setResult(`Czas wyżarzania (KROMET): ${time} h`);
-            } else {
-                const hours = Math.floor(massVal / 1000);
-                setResult(`Czas wyżarzania (KROMET): ${hours} h`);
+
+            const thicknessValue = parsePositive(
+                thickness,
+                "Podaj prawidłową grubość.",
+            );
+            if (csvError) throw new UserError(csvError);
+            if (!csvData) {
+                throw new UserError("Trwa ładowanie danych, spróbuj ponownie.");
             }
-            return;
-        }
 
-        if (!csvData || !csvData.data || csvData.data.length === 0) {
-            setResult("Ładowanie danych lub brak danych w pliku CSV.");
-            return;
-        }
-        const { thicknesses, data } = csvData;
-        const massVal = parseFloat(mass);
-        const thicknessVal = parseFloat(thickness);
-
-        const massIdx = findClosest(
-            data.map((d) => d.mass),
-            massVal
-        );
-        const thicknessIdx = findClosest(thicknesses, thicknessVal);
-
-        const time = data[massIdx]?.times[thicknessIdx];
-
-        if (time == null) {
-            setResult("Brak danych dla podanych parametrów.");
-            return;
-        }
-
-        setResult(`Czas wyżarzania (MAAG): ${(time * 0.6).toFixed(2)} h`);
-    };
+            const time = lookupMassThickness(csvData, massValue, thicknessValue);
+            if (time == null) {
+                throw new UserError("Brak danych dla podanych parametrów.");
+            }
+            const maagTime = (time * MAAG_TIME_FACTOR).toFixed(2);
+            return timeResultLine(`Czas wyżarzania (MAAG): ${maagTime} h`, maagTime);
+        });
 
     const handleClear = () => {
         setMass("");
         setThickness("");
-        setResult(null);
+        clearResult();
         setClearCounter((c) => c + 1);
     };
 
-    const handleMassUpdate = (value) => {
-        setMass(value);
-    };
-
-    useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
-    });
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
-            <div>
-                <label>Wybierz piec:&nbsp;</label>
+            <div className="form-group">
+                <label htmlFor={furnaceSelectId}>Wybierz piec:</label>
                 <select
+                    id={furnaceSelectId}
                     value={furnace}
                     onChange={(e) => setFurnace(e.target.value)}
                 >
@@ -132,31 +78,31 @@ export default function Annealing() {
                 </select>
             </div>
             <InputField
-                id="mass"
                 label="Masa detalu (kg):"
                 value={mass}
-                onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg"
+                onChange={setMass}
+                placeholder="Wpisz masę w kg lub użyj kalkulatora poniżej"
             />
             {furnace === "MAAG" && (
                 <InputField
-                    id="thickness"
                     label="Grubość materiału (mm):"
                     value={thickness}
-                    onChange={(e) => setThickness(e.target.value)}
+                    onChange={setThickness}
                     placeholder="Wpisz grubość w mm"
                 />
             )}
-            <button onClick={handleCalculate}>Oblicz</button>
-            <button onClick={handleClear}>Wyczyść</button>
-            <MassCalculator
-                onMassUpdate={handleMassUpdate}
-                onThicknessUpdate={setThickness}
-                thickness={thickness}
-                showRodShape={true}
-                clearSignal={clearCounter}
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
             />
             <Result result={result} />
+            <MassCalculator
+                key={clearCounter}
+                onMassUpdate={setMass}
+                thickness={thickness}
+                onThicknessChange={setThickness}
+            />
         </>
     );
 }

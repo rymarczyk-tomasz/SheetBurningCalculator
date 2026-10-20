@@ -1,34 +1,35 @@
 # SheetBurningCalculator
 
-This project is a React frontend application bootstrapped with Vite.js and JavaScript.
+Kalkulator normatywu czasu pracy (palenie, cięcie, obróbka cieplna, fazowanie, spawanie itd.).
+Aplikacja React 18 + Vite, publikowana na GitHub Pages.
 
-## Features
-- React 18 + JavaScript
-- Vite.js for fast development
-- Prettier, ESLint, and EditorConfig for consistent code style (tabs, tab size 4)
+## Uruchomienie
 
-## Getting Started
-
-### Install dependencies
 ```bash
 npm install
+npm run dev        # serwer deweloperski
+npm run build      # build produkcyjny do dist/
 ```
 
-### Start development server
+## Jakość kodu
+
 ```bash
-npm run dev
+npm run lint       # ESLint
+npm test           # testy jednostkowe (Vitest)
+npm run test:watch # testy w trybie watch
 ```
 
-### Build for production
-```bash
-npm run build
-```
+CI (`.github/workflows/ci.yml`) uruchamia lint, testy i build dla każdego pusha poza `main`
+oraz dla pull requestów. Push na `main` dodatkowo publikuje aplikację (`deploy.yml`).
 
-## Code Style
-- Uses tabs (tab size 4) for indentation
-- Prettier and ESLint are pre-configured
-- EditorConfig enforces consistent settings
+## Struktura
 
----
+- `src/processes.js` — lista procesów i ich stron.
+- `src/components/` — komponenty UI; `ProcessPages/` — strony poszczególnych procesów.
+- `src/hooks/` — wspólna logika stanu (`useCalculation`, `useShapeDimensions`, `useHoles`, ...).
+- `src/utils/` — czyste funkcje obliczeniowe (pokryte testami `*.test.js`).
+- `src/data/` — tabele normatywów zapisane w kodzie.
+- `public/*.csv` — tabele normatywów ładowane w przeglądarce.
 
-For more details, see `.prettierrc`, `.eslintrc.cjs`, and `.editorconfig`.
+Funkcje obliczeniowe zgłaszają błędy danych wejściowych przez `UserError` — komunikat
+trafia wprost do użytkownika. Udane wyniki zapisywane są w historii (localStorage).

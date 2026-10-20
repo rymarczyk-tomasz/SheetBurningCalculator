@@ -1,117 +1,57 @@
-import React from "react";
+import { useState } from "react";
 import ShapeSelector from "../ShapeSelector";
+import ShapeDimensionFields from "../ShapeDimensionFields";
+import HolesOptions from "../HolesOptions";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
-import ExtraOptions from "./ExtraOptions";
+import useShapeDimensions from "../../hooks/useShapeDimensions";
+import useHoles from "../../hooks/useHoles";
+import useCalculation from "../../hooks/useCalculation";
+import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { burningCalculator } from "../../utils/calculators/burningCalculator";
 
-export default function BurningCalculator({
-    shape,
-    setShape,
-    length,
-    setLength,
-    width,
-    setWidth,
-    outerDiameter,
-    setOuterDiameter,
-    innerDiameter,
-    setInnerDiameter,
-    thickness,
-    setThickness,
-    totalLength,
-    setTotalLength,
-    holes,
-    setHoles,
-    rectHoles,
-    setRectHoles,
-    result,
-    handleCalculate,
-    handleClear,
-    extraOptionsVisible,
-    setExtraOptionsVisible,
-}) {
+export default function BurningCalculator() {
+    const { shape, setShape, dims, setDim, resetDims } = useShapeDimensions();
+    const { holes, setHoles, rectHoles, setRectHoles, resetHoles } = useHoles();
+    const [thickness, setThickness] = useState("");
+    const { result, run, clearResult, pending } = useCalculation();
+
+    const handleCalculate = () =>
+        run(() =>
+            burningCalculator({ shape, dims, thickness, holes, rectHoles }),
+        );
+
+    const handleClear = () => {
+        resetDims();
+        resetHoles();
+        setThickness("");
+        clearResult();
+    };
+
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
+
     return (
         <>
-            <ShapeSelector
-                shape={shape}
-                setShape={setShape}
-                isCutting={false}
+            <ShapeSelector shape={shape} setShape={setShape} />
+            <HolesOptions
+                holes={holes}
+                setHoles={setHoles}
+                rectHoles={rectHoles}
+                setRectHoles={setRectHoles}
             />
-
-            <div className="options-toggle-group">
-                <button
-                    type="button"
-                    onClick={() => setExtraOptionsVisible((v) => !v)}
-                >
-                    {extraOptionsVisible ? "Ukryj" : "Dodatkowe opcje"}
-                </button>
-                {extraOptionsVisible && (
-                    <ExtraOptions
-                        holes={holes}
-                        setHoles={setHoles}
-                        rectHoles={rectHoles}
-                        setRectHoles={setRectHoles}
-                    />
-                )}
-            </div>
-
-            {shape === "rectangle" && (
-                <>
-                    <InputField
-                        id="length"
-                        label="Długość boku A (mm):"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="width"
-                        label="Długość boku B (mm):"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {(shape === "circle" || shape === "semicircle") && (
-                <>
-                    <InputField
-                        id="outerDiameter"
-                        label="Fi zewnętrzne (mm):"
-                        value={outerDiameter}
-                        onChange={(e) => setOuterDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="innerDiameter"
-                        label="Fi wewnętrzne (mm):"
-                        value={innerDiameter}
-                        onChange={(e) => setInnerDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {shape === "totalLength" && (
-                <InputField
-                    id="totalLength"
-                    label="Całkowita długość boków (mm):"
-                    value={totalLength}
-                    onChange={(e) => setTotalLength(e.target.value)}
-                    placeholder="Wpisz całkowitą długość w mm"
-                />
-            )}
-
+            <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <InputField
-                id="thickness"
                 label="Grubość blachy (mm):"
                 value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
+                onChange={setThickness}
                 placeholder="Wpisz grubość w mm"
             />
-
-            <button onClick={handleCalculate}>Oblicz</button>
-            <button onClick={handleClear}>Wyczyść</button>
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
+            />
             <Result result={result} />
         </>
     );

@@ -1,20 +1,39 @@
+import PropTypes from "prop-types";
+import CopyButton from "./CopyButton";
+
+const resultLinePropType = PropTypes.shape({
+    text: PropTypes.string.isRequired,
+    copy: PropTypes.string,
+});
+
+/**
+ * Wyświetla wynik z useCalculation: { kind: "success" | "error", lines: [{ text, copy }] }.
+ * Przycisk "Kopiuj" kopiuje samą wartość linii (np. czas), a nie cały tekst.
+ */
 const Result = ({ result }) => {
     if (!result) return null;
 
-    if (typeof result === "string" || typeof result === "number") {
-        return <h2 id="result">{result}</h2>;
-    }
+    const isError = result.kind === "error";
+    return (
+        <div
+            className={`result result--${result.kind}`}
+            role={isError ? "alert" : "status"}
+        >
+            {result.lines.map((line, idx) => (
+                <div key={idx} className="result-row">
+                    <p className="result-line">{line.text}</p>
+                    {!isError && line.copy && <CopyButton text={line.copy} />}
+                </div>
+            ))}
+        </div>
+    );
+};
 
-    if (typeof result === "object") {
-        return (
-            <div id="result">
-                {result.rodResult && <h2>Pręt: {result.rodResult}</h2>}
-                {result.pipeResult && <h2>Rura: {result.pipeResult}</h2>}
-            </div>
-        );
-    }
-
-    return null;
+Result.propTypes = {
+    result: PropTypes.shape({
+        kind: PropTypes.oneOf(["success", "error"]).isRequired,
+        lines: PropTypes.arrayOf(resultLinePropType).isRequired,
+    }),
 };
 
 export default Result;
