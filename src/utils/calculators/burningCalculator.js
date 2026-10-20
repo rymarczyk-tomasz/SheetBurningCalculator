@@ -1,66 +1,37 @@
-import { calculateByShape } from "../calculateByShape";
+import { UserError } from "../errors";
+import { getPerimeterTime } from "../geometry";
 import { getThicknessMultiplier } from "../getThicknessMultiplier";
+import { parsePositive } from "../parseNumber";
+import { timeResultLine } from "../resultLine";
 
-export function burningCalculator({
-    shape,
-    length,
-    width,
-    outerDiameter,
-    innerDiameter,
-    totalLength,
-    thickness,
-    holes,
-    rectHoles,
-}) {
-    const thicknessValue = parseInt(thickness, 10);
-    if (isNaN(thicknessValue) || thicknessValue <= 0) {
-        return "Proszę podać prawidłową grubość blachy (1-400 mm).";
+const MIN_THICKNESS = 3;
+const MAX_THICKNESS = 400;
+const PLASMA_MAX_THICKNESS = 25;
+
+/**
+ * Zwraca linię wyniku z czasem palenia blachy. Rzuca UserError dla nieprawidłowych danych.
+ */
+export function burningCalculator({ shape, dims, thickness, holes, rectHoles }) {
+    const thicknessValue = parsePositive(
+        thickness,
+        `Proszę podać prawidłową grubość blachy (${MIN_THICKNESS}-${MAX_THICKNESS} mm).`,
+    );
+    if (thicknessValue > MAX_THICKNESS) {
+        throw new UserError(
+            `Brak możliwości palenia blach o grubości powyżej ${MAX_THICKNESS} mm.`,
+        );
     }
-    if (thicknessValue > 400) {
-        return "Brak możliwości palenia blach o grubości powyżej 400 mm.";
+    if (thicknessValue < MIN_THICKNESS) {
+        throw new UserError("Taką blachę tniemy na wodzie.");
     }
 
     const multiplier = getThicknessMultiplier(thicknessValue);
-    let result = 0;
+    const hours = getPerimeterTime({ shape, dims, holes, rectHoles }, multiplier);
+    const method =
+        Math.floor(thicknessValue) <= PLASMA_MAX_THICKNESS
+            ? "Plazma"
+            : "Palnik gazowy";
 
-    try {
-        result = calculateByShape(
-            shape,
-            { length, width, outerDiameter, innerDiameter, totalLength },
-            multiplier,
-        );
-    } catch (error) {
-        return error.message;
-    }
-
-    let extraLength = 0;
-
-    holes.forEach(({ diameter, count }) => {
-        const d = parseFloat(diameter);
-        const c = parseInt(count, 10);
-        if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
-            extraLength += Math.PI * d * c;
-        }
-    });
-
-    rectHoles.forEach(({ a, b, count }) => {
-        const aa = parseFloat(a);
-        const bb = parseFloat(b);
-        const c = parseInt(count, 10);
-        if (aa > 0 && bb > 0 && c > 0) {
-            extraLength += 2 * (aa + bb) * c;
-        }
-    });
-
-    if (extraLength > 0) {
-        result += (extraLength / 1000) * multiplier;
-    }
-
-    if (thicknessValue < 3) {
-        return "Taką blachę tniemy na wodzie";
-    } else if (thicknessValue <= 25) {
-        return `Czas palenia blachy: ${result.toFixed(2)} h - Plazma`;
-    } else {
-        return `Czas palenia blachy: ${result.toFixed(2)} h - Palnik gazowy`;
-    }
+    const time = hours.toFixed(2);
+    return timeResultLine(`Czas palenia blachy: ${time} h - ${method}`, time);
 }

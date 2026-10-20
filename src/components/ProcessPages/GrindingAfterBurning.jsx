@@ -2,103 +2,64 @@ import { useState } from "react";
 import ShapeSelector from "../ShapeSelector";
 import ShapeDimensionFields from "../ShapeDimensionFields";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
+import useShapeDimensions from "../../hooks/useShapeDimensions";
+import useCalculation from "../../hooks/useCalculation";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
-import { calculateByShape } from "../../utils/calculateByShape";
-
+import { UserError } from "../../utils/errors";
+import { getPerimeterTime } from "../../utils/geometry";
 import { getNormatywMultiplier } from "../../utils/getNormatywMultiplier";
+import { parsePositive } from "../../utils/parseNumber";
+import { timeResultLine } from "../../utils/resultLine";
 
 export default function GrindingAfterBurning() {
-    const [shape, setShape] = useState("rectangle");
-    const [length, setLength] = useState("");
-    const [width, setWidth] = useState("");
-    const [outerDiameter, setOuterDiameter] = useState("");
-    const [innerDiameter, setInnerDiameter] = useState("");
+    const { shape, setShape, dims, setDim, resetDims } = useShapeDimensions();
     const [thickness, setThickness] = useState("");
-    const [totalLength, setTotalLength] = useState("");
-    const [result, setResult] = useState("");
-    const [loading, setLoading] = useState(false);
+    const { result, run, clearResult, pending } = useCalculation();
 
-    async function handleCalculate() {
-        const thicknessValue = parseFloat(thickness);
-        if (isNaN(thicknessValue) || thicknessValue <= 0) {
-            setResult("Proszę podać prawidłową grubość blachy.");
-            return;
-        }
-
-        setLoading(true);
-        const multiplier = await getNormatywMultiplier(
-            thicknessValue,
-            "szlifowanie",
-        );
-        setLoading(false);
-
-        if (!multiplier) {
-            setResult("Brak normatywu dla podanej grubości.");
-            return;
-        }
-
-        let value = 0;
-        try {
-            value = calculateByShape(
-                shape,
-                { length, width, outerDiameter, innerDiameter, totalLength },
-                multiplier,
+    const handleCalculate = () =>
+        run(async () => {
+            const thicknessValue = parsePositive(
+                thickness,
+                "Proszę podać prawidłową grubość blachy.",
             );
-        } catch (err) {
-            setResult(err.message);
-            return;
-        }
+            const multiplier = await getNormatywMultiplier(
+                thicknessValue,
+                "szlifowanie",
+            );
+            if (!multiplier) {
+                throw new UserError("Brak normatywu dla podanej grubości.");
+            }
 
-        setResult(`Czas szlifowania po paleniu: ${value.toFixed(2)} h`);
-    }
+            const hours = getPerimeterTime({ shape, dims }, multiplier);
+            const time = hours.toFixed(2);
+            return timeResultLine(`Czas szlifowania po paleniu: ${time} h`, time);
+        });
 
-    function handleClear() {
-        setLength("");
-        setWidth("");
-        setOuterDiameter("");
-        setInnerDiameter("");
+    const handleClear = () => {
+        resetDims();
         setThickness("");
-        setTotalLength("");
-        setResult("");
-    }
+        clearResult();
+    };
 
-    useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
-    });
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
-            <ShapeSelector
-                shape={shape}
-                setShape={setShape}
-                isCutting={false}
-            />
-            <ShapeDimensionFields
-                shape={shape}
-                length={length}
-                setLength={setLength}
-                width={width}
-                setWidth={setWidth}
-                outerDiameter={outerDiameter}
-                setOuterDiameter={setOuterDiameter}
-                innerDiameter={innerDiameter}
-                setInnerDiameter={setInnerDiameter}
-                totalLength={totalLength}
-                setTotalLength={setTotalLength}
-            />
+            <ShapeSelector shape={shape} setShape={setShape} />
+            <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <InputField
-                id="thickness"
                 label="Grubość blachy (mm):"
                 value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
+                onChange={setThickness}
                 placeholder="Wpisz grubość w mm"
             />
-            <button onClick={handleCalculate} disabled={loading}>
-                {loading ? "Obliczanie..." : "Oblicz"}
-            </button>
-            <button onClick={handleClear}>Wyczyść</button>
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
+            />
             <Result result={result} />
         </>
     );

@@ -1,70 +1,38 @@
-import { calculateByShape } from "../calculateByShape";
 import { waterjetCuttingData } from "../../data/waterjetCuttingData";
+import { UserError } from "../errors";
+import { getPerimeterTime } from "../geometry";
+import { parsePositive } from "../parseNumber";
+import { findInRanges } from "../rangeLookup";
+import { timeResultLine } from "../resultLine";
 
 export function getWaterjetMultiplier(type, thickness) {
     const typeData = waterjetCuttingData.find((t) => t.type === type);
     if (!typeData) return null;
-    const found = typeData.data.find(
-        (row) => thickness >= row.minThickness && thickness <= row.maxThickness,
-    );
-    return found ? found.multiplier : null;
+    return findInRanges(typeData.data, thickness)?.multiplier ?? null;
 }
 
+/**
+ * Zwraca opis czasu cięcia wodą. Rzuca UserError dla nieprawidłowych danych.
+ */
 export function waterjetCalculator({
     shape,
-    length,
-    width,
-    outerDiameter,
-    innerDiameter,
-    totalLength,
+    dims,
     thickness,
     holes,
     rectHoles,
     waterjetType,
 }) {
-    const thicknessValue = parseFloat(thickness);
-    if (isNaN(thicknessValue) || thicknessValue <= 0) {
-        return "Proszę podać prawidłową grubość blachy.";
-    }
+    const thicknessValue = parsePositive(
+        thickness,
+        "Proszę podać prawidłową grubość blachy.",
+    );
 
     const multiplier = getWaterjetMultiplier(waterjetType, thicknessValue);
     if (!multiplier) {
-        return "Brak danych dla podanej grubości i typu blachy.";
+        throw new UserError("Brak danych dla podanej grubości i typu blachy.");
     }
 
-    let result = 0;
-    try {
-        result = calculateByShape(
-            shape,
-            { length, width, outerDiameter, innerDiameter, totalLength },
-            multiplier,
-        );
-    } catch (error) {
-        return error.message;
-    }
-
-    let extraLength = 0;
-
-    holes.forEach(({ diameter, count }) => {
-        const d = parseFloat(diameter);
-        const c = parseInt(count, 10);
-        if (!isNaN(d) && d > 0 && !isNaN(c) && c > 0) {
-            extraLength += Math.PI * d * c;
-        }
-    });
-
-    rectHoles.forEach(({ a, b, count }) => {
-        const aa = parseFloat(a);
-        const bb = parseFloat(b);
-        const c = parseInt(count, 10);
-        if (aa > 0 && bb > 0 && c > 0) {
-            extraLength += 2 * (aa + bb) * c;
-        }
-    });
-
-    if (extraLength > 0) {
-        result += (extraLength / 1000) * multiplier;
-    }
-
-    return `Czas cięcia wodą (${waterjetType}): ${result.toFixed(2)} h`;
+    const hours = getPerimeterTime({ shape, dims, holes, rectHoles }, multiplier);
+    const time = hours.toFixed(2);
+    return timeResultLine(`Czas cięcia wodą (${waterjetType}): ${time} h`, time);
 }

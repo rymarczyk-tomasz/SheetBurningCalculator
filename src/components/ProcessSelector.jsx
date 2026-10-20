@@ -1,29 +1,6 @@
 import PropTypes from "prop-types";
 
-const processes = [
-    { value: "burning", label: "Palenie" },
-    { value: "saw", label: "Cięcie" },
-    {
-        value: "waterjet",
-        label: "Cięcie wodą",
-        disabled: true,
-        disabledReason: "Kalkulator w naprawie",
-    },
-    { value: "hardening", label: "Hartowanie" },
-    { value: "nitriding", label: "Azotowanie" },
-    { value: "annealing", label: "Wyżarzanie" },
-    { value: "tempering", label: "Ulepszanie cieplne" },
-    { value: "carburizing", label: "Nawęglanie" },
-    { value: "beveling", label: "Fazowanie" },
-    { value: "grindingAfterBurning", label: "Szlifowanie po paleniu" },
-    { value: "deburring", label: "Gratowanie" },
-    { value: "straightening", label: "Prostowanie" },
-    { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
-    { value: "welding", label: "Spawanie ręczne MAG-135" },
-    { value: "pipeSchedule", label: "Rury wg ASME B36.10/19" },
-];
-
-const ProcessSelector = ({ process, setProcess }) => {
+const ProcessSelector = ({ processes, process, setProcess }) => {
     return (
         <div className="form-group">
             <label>Wybierz proces:</label>
@@ -32,9 +9,10 @@ const ProcessSelector = ({ process, setProcess }) => {
                     <button
                         key={p.value}
                         type="button"
-                        onClick={() => !p.disabled && setProcess(p.value)}
+                        onClick={() => setProcess(p.value)}
                         disabled={p.disabled}
                         title={p.disabled ? p.disabledReason : undefined}
+                        aria-pressed={process === p.value}
                         className={`process-selector-btn${
                             process === p.value ? " active" : ""
                         }`}
@@ -48,6 +26,14 @@ const ProcessSelector = ({ process, setProcess }) => {
 };
 
 ProcessSelector.propTypes = {
+    processes: PropTypes.arrayOf(
+        PropTypes.shape({
+            value: PropTypes.string.isRequired,
+            label: PropTypes.string.isRequired,
+            disabled: PropTypes.bool,
+            disabledReason: PropTypes.string,
+        }),
+    ).isRequired,
     process: PropTypes.string.isRequired,
     setProcess: PropTypes.func.isRequired,
 };

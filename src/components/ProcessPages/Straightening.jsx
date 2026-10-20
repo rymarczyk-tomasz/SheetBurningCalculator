@@ -1,53 +1,50 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
+import useCalculation from "../../hooks/useCalculation";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { parsePositive } from "../../utils/parseNumber";
+import { timeResultLine } from "../../utils/resultLine";
+
+/** Mnożnik prostowania [h/m]. */
+const STRAIGHTENING_MULTIPLIER = 0.1;
 
 export default function Straightening() {
     const [length, setLength] = useState("");
-    const [result, setResult] = useState("");
+    const { result, run, clearResult, pending } = useCalculation();
 
-    useEffect(() => {
+    const handleCalculate = () =>
+        run(() => {
+            const lengthMm = parsePositive(
+                length,
+                "Proszę podać prawidłową długość.",
+            );
+            const hours = (lengthMm / 1000) * STRAIGHTENING_MULTIPLIER;
+            const time = hours.toFixed(2);
+            return timeResultLine(`Czas prostowania: ${time} h`, time);
+        });
+
+    const handleClear = () => {
         setLength("");
-        setResult("");
-    }, []);
+        clearResult();
+    };
 
-    function handleCalculate() {
-        const lengthValue = parseFloat(length);
-
-        if (isNaN(lengthValue) || lengthValue <= 0) {
-            setResult("Proszę podać prawidłową długość.");
-            return;
-        }
-
-        const lengthInMeters = lengthValue / 1000;
-        const multiplier = 0.1;
-        const value = lengthInMeters * multiplier;
-
-        setResult(`Czas prostowania: ${value.toFixed(2)} h`);
-    }
-
-    function handleClear() {
-        setLength("");
-        setResult("");
-    }
-
-    useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
-    });
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
             <InputField
-                id="length"
                 label="Długość dłuższego boku lub średnica (fi) [mm]:"
                 value={length}
-                onChange={(e) => setLength(e.target.value)}
+                onChange={setLength}
                 placeholder="Wpisz długość lub fi w mm"
             />
-            <button onClick={handleCalculate}>Oblicz</button>
-            <button onClick={handleClear}>Wyczyść</button>
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
+            />
             <Result result={result} />
         </>
     );

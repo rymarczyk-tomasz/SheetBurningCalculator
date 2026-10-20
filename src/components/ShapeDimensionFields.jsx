@@ -1,87 +1,50 @@
 import PropTypes from "prop-types";
 import InputField from "./InputField";
 
-/**
- * Wspólne pola wymiarów zależne od wybranego kształtu (prostokąt/koło/półkole/dł. całkowita).
- */
-const ShapeDimensionFields = ({
-    shape,
-    length,
-    setLength,
-    width,
-    setWidth,
-    outerDiameter,
-    setOuterDiameter,
-    innerDiameter,
-    setInnerDiameter,
-    totalLength,
-    setTotalLength,
-}) => {
-    return (
-        <>
-            {shape === "rectangle" && (
-                <>
-                    <InputField
-                        id="length"
-                        label="Długość boku A (mm):"
-                        value={length}
-                        onChange={(e) => setLength(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="width"
-                        label="Długość boku B (mm):"
-                        value={width}
-                        onChange={(e) => setWidth(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {(shape === "circle" || shape === "semicircle") && (
-                <>
-                    <InputField
-                        id="outerDiameter"
-                        label="Fi zewnętrzne (mm):"
-                        value={outerDiameter}
-                        onChange={(e) => setOuterDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                    <InputField
-                        id="innerDiameter"
-                        label="Fi wewnętrzne (mm):"
-                        value={innerDiameter}
-                        onChange={(e) => setInnerDiameter(e.target.value)}
-                        placeholder="Wpisz wymiar w mm"
-                    />
-                </>
-            )}
-
-            {shape === "totalLength" && (
-                <InputField
-                    id="totalLength"
-                    label="Całkowita długość boków (mm):"
-                    value={totalLength}
-                    onChange={(e) => setTotalLength(e.target.value)}
-                    placeholder="Wpisz całkowitą długość w mm"
-                />
-            )}
-        </>
-    );
+const FIELDS_BY_SHAPE = {
+    rectangle: [
+        { field: "length", label: "Długość boku A (mm):" },
+        { field: "width", label: "Długość boku B (mm):" },
+    ],
+    circle: [
+        { field: "outerDiameter", label: "Fi zewnętrzne (mm):" },
+        {
+            field: "innerDiameter",
+            label: "Fi wewnętrzne (mm):",
+            placeholder: "Wpisz wymiar w mm (opcjonalnie)",
+        },
+    ],
+    totalLength: [
+        { field: "totalLength", label: "Całkowita długość boków (mm):" },
+    ],
+    rod: [
+        { field: "rodDiameter", label: "Średnica pręta (mm):" },
+        { field: "rodLength", label: "Długość pręta (mm):" },
+    ],
 };
+FIELDS_BY_SHAPE.semicircle = FIELDS_BY_SHAPE.circle;
+
+/**
+ * Pola wymiarów zależne od wybranego kształtu (stan z useShapeDimensions).
+ */
+const ShapeDimensionFields = ({ shape, dims, setDim }) => (
+    <>
+        {(FIELDS_BY_SHAPE[shape] ?? []).map(({ field, label, placeholder }) => (
+            <InputField
+                key={field}
+                label={label}
+                value={dims[field]}
+                onChange={(value) => setDim(field, value)}
+                placeholder={placeholder ?? "Wpisz wymiar w mm"}
+            />
+        ))}
+    </>
+);
 
 ShapeDimensionFields.propTypes = {
     shape: PropTypes.string.isRequired,
-    length: PropTypes.string,
-    setLength: PropTypes.func,
-    width: PropTypes.string,
-    setWidth: PropTypes.func,
-    outerDiameter: PropTypes.string,
-    setOuterDiameter: PropTypes.func,
-    innerDiameter: PropTypes.string,
-    setInnerDiameter: PropTypes.func,
-    totalLength: PropTypes.string,
-    setTotalLength: PropTypes.func,
+    dims: PropTypes.objectOf(PropTypes.string).isRequired,
+    setDim: PropTypes.func.isRequired,
 };
 
 export default ShapeDimensionFields;

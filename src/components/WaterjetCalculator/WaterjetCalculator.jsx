@@ -1,113 +1,84 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ShapeSelector from "../ShapeSelector";
 import ShapeDimensionFields from "../ShapeDimensionFields";
+import HolesOptions from "../HolesOptions";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
-import ExtraOptions from "../BurningCalculator/ExtraOptions";
+import useShapeDimensions from "../../hooks/useShapeDimensions";
+import useHoles from "../../hooks/useHoles";
+import useCalculation from "../../hooks/useCalculation";
+import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { waterjetCalculator } from "../../utils/calculators/waterjetCalculator";
 
-export default function WaterjetCalculator({
-    shape,
-    setShape,
-    length,
-    setLength,
-    width,
-    setWidth,
-    outerDiameter,
-    setOuterDiameter,
-    innerDiameter,
-    setInnerDiameter,
-    thickness,
-    setThickness,
-    totalLength,
-    setTotalLength,
-    waterjetType,
-    setWaterjetType,
-    holes,
-    setHoles,
-    rectHoles,
-    setRectHoles,
-    result,
-    handleCalculate,
-    handleClear,
-}) {
-    const [extraOptionsVisible, setExtraOptionsVisible] = useState(false);
+const WATERJET_TYPES = [
+    { value: "czarna", label: "Blacha czarna" },
+    { value: "nierdzewka", label: "Blacha nierdzewna" },
+];
 
-    useEffect(() => {
-        if (shape !== "rectangle") {
-            setShape("rectangle");
-        }
-    }, []);
+export default function WaterjetCalculator() {
+    const { shape, setShape, dims, setDim, resetDims } = useShapeDimensions();
+    const { holes, setHoles, rectHoles, setRectHoles, resetHoles } = useHoles();
+    const [thickness, setThickness] = useState("");
+    const [waterjetType, setWaterjetType] = useState("czarna");
+    const { result, run, clearResult, pending } = useCalculation();
+
+    const handleCalculate = () =>
+        run(() =>
+            waterjetCalculator({
+                shape,
+                dims,
+                thickness,
+                holes,
+                rectHoles,
+                waterjetType,
+            }),
+        );
+
+    const handleClear = () => {
+        resetDims();
+        resetHoles();
+        setThickness("");
+        clearResult();
+    };
+
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
-            <div className="waterjet-type-group">
-                <label>
-                    <input
-                        type="radio"
-                        value="czarna"
-                        checked={waterjetType === "czarna"}
-                        onChange={() => setWaterjetType("czarna")}
-                    />
-                    Blacha czarna
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        value="nierdzewka"
-                        checked={waterjetType === "nierdzewka"}
-                        onChange={() => setWaterjetType("nierdzewka")}
-                    />
-                    Blacha nierdzewna
-                </label>
+            <div className="radio-group">
+                {WATERJET_TYPES.map(({ value, label }) => (
+                    <label key={value} className="radio-label">
+                        <input
+                            type="radio"
+                            name="waterjetType"
+                            value={value}
+                            checked={waterjetType === value}
+                            onChange={() => setWaterjetType(value)}
+                        />
+                        {label}
+                    </label>
+                ))}
             </div>
-
-            <ShapeSelector
-                shape={shape}
-                setShape={setShape}
-                isCutting={false}
+            <ShapeSelector shape={shape} setShape={setShape} />
+            <HolesOptions
+                holes={holes}
+                setHoles={setHoles}
+                rectHoles={rectHoles}
+                setRectHoles={setRectHoles}
             />
-
-            <div className="options-toggle-group">
-                <button
-                    type="button"
-                    onClick={() => setExtraOptionsVisible((v) => !v)}
-                >
-                    {extraOptionsVisible ? "Ukryj" : "Dodatkowe opcje"}
-                </button>
-                {extraOptionsVisible && (
-                    <ExtraOptions
-                        holes={holes}
-                        setHoles={setHoles}
-                        rectHoles={rectHoles}
-                        setRectHoles={setRectHoles}
-                    />
-                )}
-            </div>
-
-            <ShapeDimensionFields
-                shape={shape}
-                length={length}
-                setLength={setLength}
-                width={width}
-                setWidth={setWidth}
-                outerDiameter={outerDiameter}
-                setOuterDiameter={setOuterDiameter}
-                innerDiameter={innerDiameter}
-                setInnerDiameter={setInnerDiameter}
-                totalLength={totalLength}
-                setTotalLength={setTotalLength}
-            />
-
+            <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <InputField
-                id="thickness"
                 label="Grubość blachy (mm):"
                 value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
+                onChange={setThickness}
                 placeholder="Wpisz grubość w mm"
             />
-
-            <button onClick={handleCalculate}>Oblicz</button>
-            <button onClick={handleClear}>Wyczyść</button>
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
+            />
             <Result result={result} />
         </>
     );
