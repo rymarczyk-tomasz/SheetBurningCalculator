@@ -1,10 +1,16 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
-import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import MassCalculator from "../MassCalculator";
-import { useCSVTable, findClosest } from "../../hooks/useCSVTable";
+import useCalculation from "../../hooks/useCalculation";
+import useKeyShortcuts from "../../hooks/useKeyShortcuts";
+import { useCSVTable } from "../../hooks/useCSVTable";
+import { UserError } from "../../utils/errors";
+import { parsePositive } from "../../utils/parseNumber";
+import { lookupMassThickness } from "../../utils/tableLookup";
+import { timeResultLine } from "../../utils/resultLine";
 
 /**
  * Wspólny widok procesów liczących czas na podstawie tabeli CSV (masa x grubość).
@@ -15,60 +21,37 @@ export default function MassThicknessLookup({
     resultLabel,
     thicknessLabel,
     thicknessPlaceholder,
-    linkThickness,
+    linkThickness = false,
 }) {
     const [mass, setMass] = useState("");
     const [thickness, setThickness] = useState("");
-    const [result, setResult] = useState(null);
     const [clearCounter, setClearCounter] = useState(0);
-
     const { csvData, error: csvError } = useCSVTable(csvUrl);
+    const { result, run, clearResult, pending } = useCalculation();
 
-    const handleCalculate = () => {
-        if (!mass || !thickness) {
-            setResult("Uzupełnij wszystkie pola.");
-            return;
-        }
-        if (csvError) {
-            setResult(csvError);
-            return;
-        }
-        if (!csvData || !csvData.data.length) {
-            setResult("Ładowanie danych lub brak danych w pliku CSV.");
-            return;
-        }
+    const handleCalculate = () =>
+        run(() => {
+            const massValue = parsePositive(mass, "Podaj prawidłową masę detalu.");
+            const thicknessValue = parsePositive(
+                thickness,
+                "Podaj prawidłową grubość.",
+            );
+            if (csvError) throw new UserError(csvError);
+            if (!csvData) {
+                throw new UserError("Trwa ładowanie danych, spróbuj ponownie.");
+            }
 
-        const massVal = parseFloat(mass);
-        const thicknessVal = parseFloat(thickness);
-        if (
-            isNaN(massVal) ||
-            isNaN(thicknessVal) ||
-            massVal <= 0 ||
-            thicknessVal <= 0
-        ) {
-            setResult("Podaj poprawne, dodatnie wartości.");
-            return;
-        }
-
-        const { thicknesses, data } = csvData;
-        const massIdx = findClosest(
-            data.map((d) => d.mass),
-            massVal,
-        );
-        const thicknessIdx = findClosest(thicknesses, thicknessVal);
-        const time = data[massIdx]?.times[thicknessIdx];
-
-        if (time == null) {
-            setResult("Brak danych dla podanych parametrów.");
-            return;
-        }
-        setResult(`${resultLabel}: ${time} h`);
-    };
+            const time = lookupMassThickness(csvData, massValue, thicknessValue);
+            if (time == null) {
+                throw new UserError("Brak danych dla podanych parametrów.");
+            }
+            return timeResultLine(`${resultLabel}: ${time} h`, time);
+        });
 
     const handleClear = () => {
         setMass("");
         setThickness("");
-        setResult(null);
+        clearResult();
         setClearCounter((c) => c + 1);
     };
 
@@ -77,30 +60,29 @@ export default function MassThicknessLookup({
     return (
         <>
             <InputField
-                id="mass"
                 label="Masa detalu (kg):"
                 value={mass}
-                onChange={(e) => setMass(e.target.value)}
-                placeholder="Wpisz masę w kg, jeżeli nie znasz masy, użyj kalkulatora poniżej"
+                onChange={setMass}
+                placeholder="Wpisz masę w kg lub użyj kalkulatora poniżej"
             />
             <InputField
-                id="thickness"
                 label={thicknessLabel}
                 value={thickness}
-                onChange={(e) => setThickness(e.target.value)}
+                onChange={setThickness}
                 placeholder={thicknessPlaceholder}
             />
-            <button onClick={handleCalculate}>Oblicz</button>
-            <button onClick={handleClear}>Wyczyść</button>
-            <MassCalculator
-                onMassUpdate={setMass}
-                onThicknessUpdate={linkThickness ? setThickness : undefined}
-                thickness={linkThickness ? thickness : undefined}
-                isCutting={false}
-                showRodShape={true}
-                clearSignal={clearCounter}
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
             />
             <Result result={result} />
+            <MassCalculator
+                key={clearCounter}
+                onMassUpdate={setMass}
+                thickness={linkThickness ? thickness : undefined}
+                onThicknessChange={linkThickness ? setThickness : undefined}
+            />
         </>
     );
 }
@@ -111,8 +93,4 @@ MassThicknessLookup.propTypes = {
     thicknessLabel: PropTypes.string.isRequired,
     thicknessPlaceholder: PropTypes.string.isRequired,
     linkThickness: PropTypes.bool,
-};
-
-MassThicknessLookup.defaultProps = {
-    linkThickness: false,
 };

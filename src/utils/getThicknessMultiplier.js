@@ -1,3 +1,5 @@
+import { findInRanges } from "./rangeLookup";
+
 export const thicknessMultiplierData = [
     { min: 3, max: 3.99, multiplier: 0.007 },
     { min: 4, max: 4.99, multiplier: 0.01 },
@@ -33,9 +35,9 @@ export const thicknessMultiplierData = [
     { min: 300, max: 400, multiplier: 0.25 },
 ];
 
+/**
+ * Mnożnik palenia [h/m] dla grubości blachy lub null poza zakresem 3–400 mm.
+ */
 export function getThicknessMultiplier(thickness) {
-    const found = thicknessMultiplierData.find(
-        (row) => thickness >= row.min && thickness <= row.max
-    );
-    return found ? found.multiplier : 0.5;
+    return findInRanges(thicknessMultiplierData, thickness)?.multiplier ?? null;
 }

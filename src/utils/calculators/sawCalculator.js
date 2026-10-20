@@ -1,31 +1,30 @@
 import { rodCuttingData } from "../../data/rodPipeCuttingData";
+import { UserError } from "../errors";
+import { parsePositive } from "../parseNumber";
+import { findInRanges } from "../rangeLookup";
+import { timeResultLine } from "../resultLine";
 
-export function sawCalculator({ rodDiameter }) {
-    const diameter = parseInt(rodDiameter);
-
-    if (isNaN(diameter) || diameter <= 0) {
-        return {
-            rodResult: "Proszę podać prawidłową średnicę.",
-            pipeResult: "Proszę podać prawidłową średnicę.",
-        };
-    }
-
-    const found = rodCuttingData.find(
-        (row) => diameter >= row.minDiameter && diameter <= row.maxDiameter
+/**
+ * Zwraca dwie linie wyniku: czas cięcia pręta i rury o podanej średnicy.
+ * Rzuca UserError dla nieprawidłowych danych.
+ */
+export function sawCalculator({ diameter }) {
+    const diameterValue = parsePositive(
+        diameter,
+        "Proszę podać prawidłową średnicę.",
     );
 
+    const found = findInRanges(rodCuttingData, diameterValue);
     if (!found) {
-        return {
-            rodResult: `Brak danych dla podanej średnicy pręta.`,
-            pipeResult: `Brak danych dla podanej średnicy rury.`,
-        };
+        throw new UserError("Brak danych dla podanej średnicy.");
     }
 
-    const time = found.time;
-    const mpk = diameter < 180 ? "Mpk 416" : "Mpk 418";
+    const mpk = diameterValue < 180 ? "Mpk 416" : "Mpk 418";
+    const rodTime = found.time;
+    const pipeTime = found.time / 2;
 
-    const rodResult = `Na cięcie pręta potrzeba ${time} h - ${mpk}`;
-    const pipeResult = `Na cięcie rury potrzeba ${time / 2} h - ${mpk}`;
-
-    return { rodResult, pipeResult };
+    return [
+        timeResultLine(`Na cięcie pręta potrzeba ${rodTime} h - ${mpk}`, rodTime),
+        timeResultLine(`Na cięcie rury potrzeba ${pipeTime} h - ${mpk}`, pipeTime),
+    ];
 }

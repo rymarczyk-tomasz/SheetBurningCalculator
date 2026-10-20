@@ -1,248 +1,93 @@
-import { useState, useEffect } from "react";
+import { useEffect, useId, useState } from "react";
 import InputField from "../InputField";
+import CalculatorActions from "../CalculatorActions";
 import Result from "../Result";
+import useCalculation from "../../hooks/useCalculation";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import { loadCsvRows } from "../../utils/loadCsv";
+import { timeResultLine } from "../../utils/resultLine";
+import {
+    calculateWeldingTime,
+    parseWeldingTable,
+    WELD_POSITIONS,
+} from "../../utils/welding";
 
-async function loadSpawanieCSV() {
-    try {
-        const rows = await loadCsvRows(
-            `${import.meta.env.BASE_URL}spawanie.csv`,
-        );
-        if (!rows.length) return { types: [], table: [] };
-        const header = rows[0].map((h) => h.trim());
-        const typeCols = header.slice(1);
-        const parsed = [];
-        for (let i = 1; i < rows.length; i++) {
-            const cols = rows[i].map((c) => c.trim());
-            const size = parseFloat(cols[0]);
-            if (isNaN(size)) continue;
-            const values = {};
-            for (let j = 1; j < header.length; j++) {
-                const label = header[j];
-                const v =
-                    cols[j] === undefined || cols[j] === ""
-                        ? null
-                        : parseFloat(cols[j]);
-                values[label] = isNaN(v) ? null : v;
-            }
-            parsed.push({ size, values });
-        }
-        parsed.sort((a, b) => a.size - b.size);
-        return { types: typeCols, table: parsed };
-    } catch (e) {
-        console.error("Błąd podczas ładowania spawanie.csv:", e);
-        return { types: [], table: [] };
-    }
-}
+const FILLET_TYPES = [
+    { key: "pachwina_a", label: "Pachwina a" },
+    { key: "pachwina_z", label: "Pachwina z" },
+];
 
 export default function Welding() {
+    const typeSelectId = useId();
+    const positionSelectId = useId();
     const [totalLength, setTotalLength] = useState("");
-    const [result, setResult] = useState("");
-
     const [weldType, setWeldType] = useState("pachwina_a");
     const [weldSize, setWeldSize] = useState("");
     const [weldPosition, setWeldPosition] = useState("PA");
-    const [loading, setLoading] = useState(false);
-
-    const [table, setTable] = useState([]);
     const [types, setTypes] = useState([]);
-
-    const getDisplayTypes = () => {
-        const out = [];
-
-        out.push({ key: "pachwina_a", label: "Pachwina a" });
-        out.push({
-            key: "pachwina_z",
-            label: "Pachwina z",
-        });
-
-        types.forEach((t) => {
-            if (t.toLowerCase() === "pachwina") return;
-            out.push({ key: t, label: t });
-        });
-        return out;
-    };
+    const [table, setTable] = useState([]);
+    const [loadError, setLoadError] = useState(null);
+    const { result, run, clearResult, pending } = useCalculation();
 
     useEffect(() => {
+        let cancelled = false;
+        loadCsvRows(`${import.meta.env.BASE_URL}spawanie.csv`)
+            .then((rows) => {
+                if (cancelled) return;
+                const parsed = parseWeldingTable(rows);
+                setTypes(parsed.types);
+                setTable(parsed.table);
+            })
+            .catch((err) => {
+                if (!cancelled) setLoadError(err.message);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const displayTypes = [
+        ...FILLET_TYPES,
+        ...types
+            .filter((t) => t.toLowerCase() !== "pachwina")
+            .map((t) => ({ key: t, label: t })),
+    ];
+
+    const handleCalculate = () =>
+        run(() => {
+            const hours = calculateWeldingTime({
+                table,
+                weldType,
+                size: weldSize,
+                length: totalLength,
+                position: weldPosition,
+            });
+            const label =
+                displayTypes.find((t) => t.key === weldType)?.label ?? weldType;
+            const time = hours.toFixed(2);
+            return timeResultLine(
+                `Szacowany czas spawania (${label}) w pozycji ${weldPosition}: ${time} h`,
+                time,
+            );
+        });
+
+    const handleClear = () => {
         setTotalLength("");
-        setResult("");
         setWeldType("pachwina_a");
         setWeldSize("");
         setWeldPosition("PA");
+        clearResult();
+    };
 
-        async function init() {
-            const { types: t, table: tbl } = await loadSpawanieCSV();
-            setTypes(t);
-            setTable(tbl);
-
-            if (t.includes("pachwina")) {
-                setWeldType("pachwina_a");
-            } else {
-                setWeldType(t[0] || "pachwina_a");
-            }
-        }
-
-        init();
-    }, []);
-
-    function getMultiplierFromTable(targetSize, typeLabel) {
-        if (!table.length || !typeLabel) return null;
-        const target = parseFloat(targetSize);
-        if (isNaN(target)) return null;
-
-        const rowsWithVal = table.filter((r) => r.values[typeLabel] !== null);
-        if (!rowsWithVal.length) return null;
-
-        for (const row of rowsWithVal) {
-            if (row.size === target) return row.values[typeLabel];
-        }
-
-        let lower = null;
-        let upper = null;
-        for (const row of rowsWithVal) {
-            if (row.size < target) lower = row;
-            if (row.size > target && !upper) upper = row;
-        }
-
-        if (lower && upper) {
-            const lv = lower.values[typeLabel];
-            const uv = upper.values[typeLabel];
-            if (lv == null || uv == null) return lv ?? uv;
-            return (
-                lv +
-                ((uv - lv) * (target - lower.size)) / (upper.size - lower.size)
-            );
-        }
-
-        if (lower) return lower.values[typeLabel];
-        if (upper) return upper.values[typeLabel];
-        return null;
-    }
-
-    function validateFloatInput(val) {
-        if (typeof val !== "string") val = String(val);
-        const normalized = val.replace(",", ".").trim();
-        if (normalized === "") return NaN;
-        return parseFloat(normalized);
-    }
-
-    function getPositionFactor(pos) {
-        if (!pos) return 1.0;
-        const map = {
-            PA: 1.0,
-            PB: 1.0,
-            PF: 1.5,
-            PG: 1.5,
-            PC: 1.6,
-            PD: 1.6,
-            PE: 2.0,
-        };
-        // Note: PG maps to 1.5 and PD maps to 1.6 — same factors as PF and PC respectively
-        return map[pos] ?? 1.0;
-    }
-
-    async function handleCalculate() {
-        const totalLengthValue = validateFloatInput(totalLength);
-        const sizeValue = validateFloatInput(weldSize);
-
-        if (isNaN(totalLengthValue) || totalLengthValue <= 0) {
-            setResult("Proszę podać prawidłową całkowitą długość spawania.");
-            return;
-        }
-        if (!weldType) {
-            setResult("Proszę wybrać rodzaj spoiny.");
-            return;
-        }
-        if (isNaN(sizeValue) || sizeValue <= 0) {
-            setResult("Proszę podać prawidłową wielkość spoiny (liczba).");
-            return;
-        }
-        if (!weldPosition) {
-            setResult(
-                "Proszę wybrać pozycję spawania (PA, PB, PF, PG, PC, PD, PE).",
-            );
-            return;
-        }
-
-        setLoading(true);
-
-        let lookupSize = sizeValue;
-        let lookupColumn = weldType;
-
-        if (weldType === "pachwina_a" || weldType === "pachwina_z") {
-            lookupColumn = "pachwina";
-            if (weldType === "pachwina_z") {
-                lookupSize = sizeValue / 1.41;
-            } else {
-                lookupSize = sizeValue;
-            }
-        } else {
-            lookupColumn = weldType;
-            lookupSize = sizeValue;
-        }
-
-        const lookupSizeRounded = Math.round(lookupSize * 1000) / 1000;
-
-        const baseMultiplier = getMultiplierFromTable(
-            lookupSizeRounded,
-            lookupColumn,
-        );
-        setLoading(false);
-
-        if (baseMultiplier === null || baseMultiplier === undefined) {
-            setResult(
-                "Brak wartości normatywnej dla wybranego typu/wielkości spoiny (po przeliczeniu, jeśli dotyczy).",
-            );
-            return;
-        }
-
-        const positionFactor = getPositionFactor(weldPosition);
-
-        const timeHours =
-            (totalLengthValue / 1000) * baseMultiplier * positionFactor;
-
-        let chosenLabel = weldType;
-        if (weldType === "pachwina_a") chosenLabel = "Pachwina a";
-        if (weldType === "pachwina_z") chosenLabel = "Pachwina z";
-
-        let extraNote = "";
-        if (weldType === "pachwina_z") {
-            extraNote = `(wielkość spoiny ${sizeValue} )`;
-        }
-
-        setResult(
-            `Szacowany czas spawania (${chosenLabel}) w pozycji ${weldPosition}: ${timeHours.toFixed(
-                2,
-            )} h.`,
-        );
-    }
-
-    function handleClear() {
-        setTotalLength("");
-        setResult("");
-        setWeldType(
-            types.includes("pachwina")
-                ? "pachwina_a"
-                : types[0] || "pachwina_a",
-        );
-        setWeldSize("");
-        setWeldPosition("PA");
-    }
-
-    useKeyShortcuts({
-        onEnter: handleCalculate,
-        onEscape: handleClear,
-    });
-
-    const displayTypes = getDisplayTypes();
+    useKeyShortcuts({ onEnter: handleCalculate, onEscape: handleClear });
 
     return (
         <>
             <div className="welding-selectors">
-                <label>
-                    Rodzaj spoiny:
+                <div className="form-group">
+                    <label htmlFor={typeSelectId}>Rodzaj spoiny:</label>
                     <select
+                        id={typeSelectId}
                         value={weldType}
                         onChange={(e) => setWeldType(e.target.value)}
                     >
@@ -252,48 +97,42 @@ export default function Welding() {
                             </option>
                         ))}
                     </select>
-                </label>
-
-                <label>
-                    Pozycja spawania:
+                </div>
+                <div className="form-group">
+                    <label htmlFor={positionSelectId}>Pozycja spawania:</label>
                     <select
+                        id={positionSelectId}
                         value={weldPosition}
                         onChange={(e) => setWeldPosition(e.target.value)}
                     >
-                        <option value="PA">PA</option>
-                        <option value="PB">PB</option>
-                        <option value="PF">PF</option>
-                        <option value="PG">PG</option>
-                        <option value="PC">PC</option>
-                        <option value="PD">PD</option>
-                        <option value="PE">PE</option>
+                        {WELD_POSITIONS.map((pos) => (
+                            <option key={pos} value={pos}>
+                                {pos}
+                            </option>
+                        ))}
                     </select>
-                </label>
-
+                </div>
                 <InputField
-                    id="weldSize"
-                    label="Wielkość spoiny:"
+                    label="Wielkość spoiny (mm):"
                     value={weldSize}
-                    onChange={(e) => setWeldSize(e.target.value)}
-                    placeholder="Wpisz wielkość spoiny"
+                    onChange={setWeldSize}
+                    placeholder="Wpisz wielkość spoiny w mm"
                 />
             </div>
 
             <InputField
-                id="totalLength"
                 label="Całkowita długość spawania (mm):"
                 value={totalLength}
-                onChange={(e) => setTotalLength(e.target.value)}
+                onChange={setTotalLength}
                 placeholder="Wpisz całkowitą długość spawania w mm"
             />
 
-            <div className="welding-actions">
-                <button onClick={handleCalculate} disabled={loading}>
-                    {loading ? "Obliczanie..." : "Oblicz"}
-                </button>
-                <button onClick={handleClear}>Wyczyść</button>
-            </div>
-
+            {loadError && <p className="result--error-text">{loadError}</p>}
+            <CalculatorActions
+                onCalculate={handleCalculate}
+                onClear={handleClear}
+                pending={pending}
+            />
             <Result result={result} />
         </>
     );

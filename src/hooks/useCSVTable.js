@@ -1,53 +1,36 @@
 import { useState, useEffect } from "react";
 import { loadCsvRows } from "../utils/loadCsv";
+import { parseMassThicknessTable } from "../utils/tableLookup";
 
 /**
- * Hook ładujący plik CSV w formacie:
- *   wiersz 0: pusta_komórka, grubość1, grubość2, ...
- *   wiersz n: masa, czas1, czas2, ...
+ * Ładuje tabelę CSV masa x grubość (format opisany w parseMassThicknessTable).
+ * Dla url === null nic nie ładuje.
  *
- * Zwraca { csvData, loading, error }
+ * Zwraca { csvData, error }
  */
 export function useCSVTable(url) {
     const [csvData, setCsvData] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (!url) return;
 
-        setLoading(true);
+        let cancelled = false;
+        setCsvData(null);
         setError(null);
 
         loadCsvRows(url)
             .then((rows) => {
-                const thicknesses = rows[0].slice(1).map(Number);
-                const data = rows.slice(1).map((row) => ({
-                    mass: Number(row[0]),
-                    times: row
-                        .slice(1)
-                        .map((val) => (val ? Number(val) : null)),
-                }));
-                setCsvData({ thicknesses, data });
+                if (!cancelled) setCsvData(parseMassThicknessTable(rows));
             })
-            .catch((err) =>
-                setError("Błąd ładowania pliku CSV: " + err.message),
-            )
-            .finally(() => setLoading(false));
+            .catch((err) => {
+                if (!cancelled) setError(err.message);
+            });
+
+        return () => {
+            cancelled = true;
+        };
     }, [url]);
 
-    return { csvData, loading, error };
-}
-
-/**
- * Zwraca indeks elementu w tablicy arr najbliższego wartości value.
- */
-export function findClosest(arr, value) {
-    return arr.reduce(
-        (bestIdx, curr, idx, a) =>
-            Math.abs(curr - value) < Math.abs(a[bestIdx] - value)
-                ? idx
-                : bestIdx,
-        0,
-    );
+    return { csvData, error };
 }

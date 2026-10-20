@@ -1,55 +1,45 @@
 import PropTypes from "prop-types";
 
-const processes = [
-    { value: "burning", label: "Palenie" },
-    { value: "saw", label: "Cięcie" },
-    {
-        value: "waterjet",
-        label: "Cięcie wodą",
-        disabled: true,
-        disabledReason: "Kalkulator w naprawie",
-    },
-    { value: "hardening", label: "Hartowanie" },
-    { value: "nitriding", label: "Azotowanie" },
-    { value: "annealing", label: "Wyżarzanie" },
-    { value: "tempering", label: "Ulepszanie cieplne" },
-    { value: "carburizing", label: "Nawęglanie" },
-    { value: "beveling", label: "Fazowanie" },
-    { value: "grindingAfterBurning", label: "Szlifowanie po paleniu" },
-    { value: "deburring", label: "Gratowanie" },
-    { value: "straightening", label: "Prostowanie" },
-    { value: "bevelingMilling", label: "Fazowanie (frezowanie)" },
-    { value: "welding", label: "Spawanie ręczne MAG-135" },
-    { value: "pipeSchedule", label: "Rury wg ASME B36.10/19" },
-];
+const ProcessSelector = ({ processes, process, setProcess }) => {
+  return (
+    <div className="form-group">
+      <label>Wybierz proces:</label>
+      <div>
+        {processes.map((p) => {
+          const isActive = process === p.value && !p.disabled;
 
-const ProcessSelector = ({ process, setProcess }) => {
-    return (
-        <div className="form-group">
-            <label>Wybierz proces:</label>
-            <div>
-                {processes.map((p) => (
-                    <button
-                        key={p.value}
-                        type="button"
-                        onClick={() => !p.disabled && setProcess(p.value)}
-                        disabled={p.disabled}
-                        title={p.disabled ? p.disabledReason : undefined}
-                        className={`process-selector-btn${
-                            process === p.value ? " active" : ""
-                        }`}
-                    >
-                        {p.label}
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
+          return (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => setProcess(p.value)}
+              disabled={p.disabled}
+              title={p.disabled ? p.disabledReason : undefined}
+              aria-pressed={isActive}
+              className={`process-selector-btn${isActive ? " active" : ""}${
+                p.disabled ? " disabled" : ""
+              }`}
+            >
+              {p.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 ProcessSelector.propTypes = {
-    process: PropTypes.string.isRequired,
-    setProcess: PropTypes.func.isRequired,
+  processes: PropTypes.arrayOf(
+    PropTypes.shape({
+      value: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      disabled: PropTypes.bool,
+      disabledReason: PropTypes.string,
+    }),
+  ).isRequired,
+  process: PropTypes.string.isRequired,
+  setProcess: PropTypes.func.isRequired,
 };
 
 export default ProcessSelector;
