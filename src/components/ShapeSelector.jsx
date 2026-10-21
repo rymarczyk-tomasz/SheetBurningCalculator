@@ -5,7 +5,7 @@ const ShapeSelector = ({ shape, setShape, showRodShape = false }) => {
     const id = useId();
     return (
         <div className="form-group">
-            <label htmlFor={id}>Wybierz kształt:</label>
+            <label htmlFor={id}>Wybierz kształt</label>
             <select
                 id={id}
                 value={shape}

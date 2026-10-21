@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import ShapeSelector from "../ShapeSelector";
 import ShapeDimensionFields from "../ShapeDimensionFields";
 import HolesOptions from "../HolesOptions";
@@ -17,6 +17,7 @@ const WATERJET_TYPES = [
 ];
 
 export default function WaterjetCalculator() {
+    const radioName = useId();
     const { shape, setShape, dims, setDim, resetDims } = useShapeDimensions();
     const { holes, setHoles, rectHoles, setRectHoles, resetHoles } = useHoles();
     const [thickness, setThickness] = useState("");
@@ -51,7 +52,7 @@ export default function WaterjetCalculator() {
                     <label key={value} className="radio-label">
                         <input
                             type="radio"
-                            name="waterjetType"
+                            name={radioName}
                             value={value}
                             checked={waterjetType === value}
                             onChange={() => setWaterjetType(value)}
@@ -61,18 +62,18 @@ export default function WaterjetCalculator() {
                 ))}
             </div>
             <ShapeSelector shape={shape} setShape={setShape} />
-            <HolesOptions
-                holes={holes}
-                setHoles={setHoles}
-                rectHoles={rectHoles}
-                setRectHoles={setRectHoles}
-            />
             <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <InputField
                 label="Grubość blachy (mm):"
                 value={thickness}
                 onChange={setThickness}
                 placeholder="Wpisz grubość w mm"
+            />
+            <HolesOptions
+                holes={holes}
+                setHoles={setHoles}
+                rectHoles={rectHoles}
+                setRectHoles={setRectHoles}
             />
             <CalculatorActions
                 onCalculate={handleCalculate}

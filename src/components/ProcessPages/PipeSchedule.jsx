@@ -77,7 +77,7 @@ export default function PipeSchedule() {
             <div className="pipe-schedule-container">
                 <div className="form-group">
                     <label htmlFor={sizeInputId}>
-                        Nominalna wielkość rury (np. 1/4, 0.25 lub 0,25):
+                        Nominalna wielkość rury
                     </label>
                     <input
                         type="text"
@@ -90,7 +90,7 @@ export default function PipeSchedule() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor={scheduleSelectId}>Typ Schedule:</label>
+                    <label htmlFor={scheduleSelectId}>Typ Schedule</label>
                     <select
                         id={scheduleSelectId}
                         value={schedule}

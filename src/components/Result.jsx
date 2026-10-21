@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import CopyButton from "./CopyButton";
+import { getTimeValue, localizeDecimals } from "../utils/resultLine";
 
 const resultLinePropType = PropTypes.shape({
     text: PropTypes.string.isRequired,
@@ -7,8 +8,40 @@ const resultLinePropType = PropTypes.shape({
 });
 
 /**
+ * Pojedyncza linia wyniku. Czas jest wyróżniony dużą liczbą z jednostką,
+ * pozostałe linie (np. wymiary rury) wyświetlane są jako zwykły tekst.
+ */
+export function ResultValue({ line }) {
+    const time = getTimeValue(line);
+
+    if (!time) {
+        return (
+            <div className="result-row">
+                <p className="result-text">{line.text}</p>
+                {line.copy && <CopyButton text={line.copy} />}
+            </div>
+        );
+    }
+
+    return (
+        <div className="result-row">
+            <div className="result-main">
+                <p className="result-value">
+                    {time.value}
+                    <span className="result-unit">{time.unit}</span>
+                </p>
+                <p className="result-caption">{localizeDecimals(line.text)}</p>
+            </div>
+            <CopyButton text={line.copy} />
+        </div>
+    );
+}
+
+ResultValue.propTypes = { line: resultLinePropType.isRequired };
+
+/**
  * Wyświetla wynik z useCalculation: { kind: "success" | "error", lines: [{ text, copy }] }.
- * Przycisk "Kopiuj" kopiuje samą wartość linii (np. czas), a nie cały tekst.
+ * Przycisk kopiowania kopiuje samą wartość linii (np. czas), a nie cały tekst.
  */
 const Result = ({ result }) => {
     if (!result) return null;
@@ -19,12 +52,11 @@ const Result = ({ result }) => {
             className={`result result--${result.kind}`}
             role={isError ? "alert" : "status"}
         >
-            {result.lines.map((line, idx) => (
-                <div key={idx} className="result-row">
-                    <p className="result-line">{line.text}</p>
-                    {!isError && line.copy && <CopyButton text={line.copy} />}
-                </div>
-            ))}
+            {isError ? (
+                <p className="result-text">{result.lines[0].text}</p>
+            ) : (
+                result.lines.map((line, idx) => <ResultValue key={idx} line={line} />)
+            )}
         </div>
     );
 };

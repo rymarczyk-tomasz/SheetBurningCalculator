@@ -34,18 +34,18 @@ export default function BurningCalculator() {
     return (
         <>
             <ShapeSelector shape={shape} setShape={setShape} />
-            <HolesOptions
-                holes={holes}
-                setHoles={setHoles}
-                rectHoles={rectHoles}
-                setRectHoles={setRectHoles}
-            />
             <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <InputField
                 label="Grubość blachy (mm):"
                 value={thickness}
                 onChange={setThickness}
                 placeholder="Wpisz grubość w mm"
+            />
+            <HolesOptions
+                holes={holes}
+                setHoles={setHoles}
+                rectHoles={rectHoles}
+                setRectHoles={setRectHoles}
             />
             <CalculatorActions
                 onCalculate={handleCalculate}

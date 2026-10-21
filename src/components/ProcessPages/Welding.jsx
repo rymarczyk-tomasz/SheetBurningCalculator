@@ -85,7 +85,7 @@ export default function Welding() {
         <>
             <div className="welding-selectors">
                 <div className="form-group">
-                    <label htmlFor={typeSelectId}>Rodzaj spoiny:</label>
+                    <label htmlFor={typeSelectId}>Rodzaj spoiny</label>
                     <select
                         id={typeSelectId}
                         value={weldType}
@@ -99,7 +99,7 @@ export default function Welding() {
                     </select>
                 </div>
                 <div className="form-group">
-                    <label htmlFor={positionSelectId}>Pozycja spawania:</label>
+                    <label htmlFor={positionSelectId}>Pozycja spawania</label>
                     <select
                         id={positionSelectId}
                         value={weldPosition}
