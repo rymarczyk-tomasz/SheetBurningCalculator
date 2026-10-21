@@ -39,13 +39,13 @@ export default function Deburring() {
     return (
         <>
             <ShapeSelector shape={shape} setShape={setShape} />
+            <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <HolesOptions
                 holes={holes}
                 setHoles={setHoles}
                 rectHoles={rectHoles}
                 setRectHoles={setRectHoles}
             />
-            <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <CalculatorActions
                 onCalculate={handleCalculate}
                 onClear={handleClear}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import PropTypes from "prop-types";
 import ShapeSelector from "../ShapeSelector";
 import ShapeDimensionFields from "../ShapeDimensionFields";
@@ -23,6 +23,7 @@ const SIDE_OPTIONS = [
  * getMultiplier(wielkośćFazy) zwraca mnożnik [h/m] (może być async) lub null.
  */
 export default function ChamferCalculator({ resultLabel, getMultiplier }) {
+    const radioName = useId();
     const { shape, setShape, dims, setDim, resetDims } = useShapeDimensions();
     const [chamferSize, setChamferSize] = useState("");
     const [side, setSide] = useState("single");
@@ -65,7 +66,7 @@ export default function ChamferCalculator({ resultLabel, getMultiplier }) {
                     <label key={value} className="radio-label">
                         <input
                             type="radio"
-                            name="sideOption"
+                            name={radioName}
                             value={value}
                             checked={side === value}
                             onChange={() => setSide(value)}

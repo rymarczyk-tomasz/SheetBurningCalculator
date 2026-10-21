@@ -35,7 +35,7 @@ export default function Straightening() {
     return (
         <>
             <InputField
-                label="Długość dłuższego boku lub średnica (fi) [mm]:"
+                label="Długość dłuższego boku lub średnica (fi) (mm):"
                 value={length}
                 onChange={setLength}
                 placeholder="Wpisz długość lub fi w mm"

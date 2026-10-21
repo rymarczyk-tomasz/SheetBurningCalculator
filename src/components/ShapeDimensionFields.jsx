@@ -28,7 +28,7 @@ FIELDS_BY_SHAPE.semicircle = FIELDS_BY_SHAPE.circle;
  * Pola wymiarów zależne od wybranego kształtu (stan z useShapeDimensions).
  */
 const ShapeDimensionFields = ({ shape, dims, setDim }) => (
-    <>
+    <div className="form-grid">
         {(FIELDS_BY_SHAPE[shape] ?? []).map(({ field, label, placeholder }) => (
             <InputField
                 key={field}
@@ -38,7 +38,7 @@ const ShapeDimensionFields = ({ shape, dims, setDim }) => (
                 placeholder={placeholder ?? "Wpisz wymiar w mm"}
             />
         ))}
-    </>
+    </div>
 );
 
 ShapeDimensionFields.propTypes = {

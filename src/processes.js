@@ -15,39 +15,98 @@ import Welding from "./components/ProcessPages/Welding";
 import PipeSchedule from "./components/ProcessPages/PipeSchedule";
 
 /**
- * Lista procesów: kolejność przycisków w ProcessSelector i komponent strony procesu.
+ * Lista procesów: kolejność i grupa w nawigacji bocznej oraz komponent strony procesu.
  */
 export const PROCESSES = [
-    { value: "burning", label: "Palenie", component: BurningCalculator },
-    { value: "saw", label: "Cięcie", component: SawCalculator },
+    {
+        value: "burning",
+        group: "Cięcie",
+        label: "Palenie",
+        component: BurningCalculator,
+    },
+    {
+        value: "saw",
+        group: "Cięcie",
+        label: "Cięcie",
+        component: SawCalculator,
+    },
     {
         value: "waterjet",
+        group: "Cięcie",
         label: "Cięcie wodą",
         component: WaterjetCalculator,
         disabled: true,
         disabledReason: "Kalkulator w naprawie",
     },
-    { value: "hardening", label: "Hartowanie", component: Hardening },
-    { value: "nitriding", label: "Azotowanie", component: Nitriding },
-    { value: "annealing", label: "Wyżarzanie", component: Annealing },
-    { value: "tempering", label: "Ulepszanie cieplne", component: Tempering },
-    { value: "carburizing", label: "Nawęglanie", component: Carburizing },
-    { value: "beveling", label: "Fazowanie", component: Beveling },
+    {
+        value: "hardening",
+        group: "Obróbka cieplna",
+        label: "Hartowanie",
+        component: Hardening,
+    },
+    {
+        value: "nitriding",
+        group: "Obróbka cieplna",
+        label: "Azotowanie",
+        component: Nitriding,
+    },
+    {
+        value: "annealing",
+        group: "Obróbka cieplna",
+        label: "Wyżarzanie",
+        component: Annealing,
+    },
+    {
+        value: "tempering",
+        group: "Obróbka cieplna",
+        label: "Ulepszanie cieplne",
+        component: Tempering,
+    },
+    {
+        value: "carburizing",
+        group: "Obróbka cieplna",
+        label: "Nawęglanie",
+        component: Carburizing,
+    },
+    {
+        value: "beveling",
+        group: "Obróbka mechaniczna",
+        label: "Fazowanie",
+        component: Beveling,
+    },
     {
         value: "grindingAfterBurning",
+        group: "Obróbka mechaniczna",
         label: "Szlifowanie po paleniu",
         component: GrindingAfterBurning,
     },
-    { value: "deburring", label: "Gratowanie", component: Deburring },
-    { value: "straightening", label: "Prostowanie", component: Straightening },
+    {
+        value: "deburring",
+        group: "Obróbka mechaniczna",
+        label: "Gratowanie",
+        component: Deburring,
+    },
+    {
+        value: "straightening",
+        group: "Obróbka mechaniczna",
+        label: "Prostowanie",
+        component: Straightening,
+    },
     {
         value: "bevelingMilling",
+        group: "Obróbka mechaniczna",
         label: "Fazowanie (frezowanie)",
         component: BevelingMilling,
     },
-    { value: "welding", label: "Spawanie ręczne MAG-135", component: Welding },
+    {
+        value: "welding",
+        group: "Spawanie",
+        label: "Spawanie ręczne MAG-135",
+        component: Welding,
+    },
     {
         value: "pipeSchedule",
+        group: "Rury",
         label: "Rury wg ASME B36.10/19",
         component: PipeSchedule,
     },

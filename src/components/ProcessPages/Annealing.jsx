@@ -67,7 +67,7 @@ export default function Annealing() {
     return (
         <>
             <div className="form-group">
-                <label htmlFor={furnaceSelectId}>Wybierz piec:</label>
+                <label htmlFor={furnaceSelectId}>Wybierz piec</label>
                 <select
                     id={furnaceSelectId}
                     value={furnace}

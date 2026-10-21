@@ -49,8 +49,11 @@ export default function MassCalculator({
     }, [massText, onMassUpdate]);
 
     return (
-        <div className="mass-calculator">
-            <h2>Kalkulator do obliczania masy detalu</h2>
+        <section className="mass-calculator" aria-label="Kalkulator masy detalu">
+            <h3>Kalkulator masy detalu</h3>
+            <p className="mass-calculator-hint">
+                Wyliczona masa zostanie automatycznie wpisana do pola masy.
+            </p>
             <ShapeSelector shape={shape} setShape={setShape} showRodShape />
             <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             {shape !== "rod" && (
@@ -61,9 +64,13 @@ export default function MassCalculator({
                     placeholder="Wpisz grubość w mm"
                 />
             )}
-            {massText !== null && <p>Masa detalu: {massText} kg</p>}
+            {massText !== null && (
+                <p className="mass-calculator-result">
+                    Masa detalu: <strong>{massText.replace(".", ",")} kg</strong>
+                </p>
+            )}
             {error && <p className="result--error-text">{error}</p>}
-        </div>
+        </section>
     );
 }
 
