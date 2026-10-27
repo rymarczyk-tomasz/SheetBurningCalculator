@@ -1,5 +1,5 @@
 import { UserError } from "./errors";
-import { parseNumber, parsePositive } from "./parseNumber";
+import { parseNumber, parsePositive, parseSum } from "./parseNumber";
 
 function parseInnerDiameter(value) {
     if (value == null || String(value).trim() === "") return 0;
@@ -43,7 +43,7 @@ export function getPerimeterMm(
         }
         case "totalLength":
             return parsePositive(
-                totalLength,
+                parseSum(totalLength),
                 "Proszę podać poprawną całkowitą długość wszystkich boków.",
             );
         default:

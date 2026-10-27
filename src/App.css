@@ -203,6 +203,16 @@ select:focus {
     pointer-events: none;
 }
 
+.input-sum {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.input-sum--invalid {
+    color: var(--danger);
+}
+
 .radio-group {
     display: flex;
     gap: 8px;

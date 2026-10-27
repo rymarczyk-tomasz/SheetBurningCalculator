@@ -15,7 +15,12 @@ const FIELDS_BY_SHAPE = {
         },
     ],
     totalLength: [
-        { field: "totalLength", label: "Całkowita długość boków (mm):" },
+        {
+            field: "totalLength",
+            label: "Całkowita długość boków (mm):",
+            placeholder: "Np. 250+578+360",
+            allowSum: true,
+        },
     ],
     rod: [
         { field: "rodDiameter", label: "Średnica pręta (mm):" },
@@ -29,15 +34,18 @@ FIELDS_BY_SHAPE.semicircle = FIELDS_BY_SHAPE.circle;
  */
 const ShapeDimensionFields = ({ shape, dims, setDim }) => (
     <div className="form-grid">
-        {(FIELDS_BY_SHAPE[shape] ?? []).map(({ field, label, placeholder }) => (
-            <InputField
-                key={field}
-                label={label}
-                value={dims[field]}
-                onChange={(value) => setDim(field, value)}
-                placeholder={placeholder ?? "Wpisz wymiar w mm"}
-            />
-        ))}
+        {(FIELDS_BY_SHAPE[shape] ?? []).map(
+            ({ field, label, placeholder, allowSum }) => (
+                <InputField
+                    key={field}
+                    label={label}
+                    value={dims[field]}
+                    onChange={(value) => setDim(field, value)}
+                    placeholder={placeholder ?? "Wpisz wymiar w mm"}
+                    allowSum={allowSum}
+                />
+            ),
+        )}
     </div>
 );
 
