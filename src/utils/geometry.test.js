@@ -35,6 +35,9 @@ describe("getPerimeterMm", () => {
         expect(getPerimeterMm("totalLength", { totalLength: "1234,5" })).toBe(
             1234.5,
         );
+        expect(
+            getPerimeterMm("totalLength", { totalLength: "250+578+360" }),
+        ).toBe(1188);
     });
 
     it("odrzuca fi wewnętrzne >= zewnętrznemu", () => {

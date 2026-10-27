@@ -1,5 +1,5 @@
 import { UserError } from "./errors";
-import { parseNumber } from "./parseNumber";
+import { parseNumber, parseSum } from "./parseNumber";
 
 /** Gęstość stali [kg/mm³] (7.86 g/cm³). */
 export const STEEL_DENSITY = 7.86e-6;
@@ -40,7 +40,7 @@ export function calculateMass(shape, dims, thickness) {
         }
         case "totalLength": {
             // Pas o szerokości 1 mm wzdłuż podanej długości
-            const length = positive(dims.totalLength);
+            const length = positive(parseSum(dims.totalLength));
             if (length && t) volume = length * t * 1;
             break;
         }
