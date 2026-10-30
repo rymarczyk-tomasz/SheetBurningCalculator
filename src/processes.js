@@ -13,6 +13,7 @@ import Straightening from "./components/ProcessPages/Straightening";
 import BevelingMilling from "./components/ProcessPages/BevelingMilling";
 import Welding from "./components/ProcessPages/Welding";
 import PipeSchedule from "./components/ProcessPages/PipeSchedule";
+import MaterialAlternates from "./components/ProcessPages/MaterialAlternates";
 
 /**
  * Lista procesów: kolejność i grupa w nawigacji bocznej oraz komponent strony procesu.
@@ -109,5 +110,11 @@ export const PROCESSES = [
         group: "Rury",
         label: "Rury wg ASME B36.10/19",
         component: PipeSchedule,
+    },
+    {
+        value: "materialAlternates",
+        group: "Materiały",
+        label: "Zamienniki wg D50A152",
+        component: MaterialAlternates,
     },
 ];
