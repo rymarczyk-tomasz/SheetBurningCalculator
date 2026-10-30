@@ -195,32 +195,3 @@ export function formLabel(data, form) {
     const pl = translate(data, "forms", form);
     return pl ? `${pl} (${form})` : form;
 }
-
-/** Tekst do wklejenia we wniosek o zamiennik. */
-export function requestText(data, row, columnKey, alternate) {
-    const { material, conditions } = splitAlternate(alternate);
-    const remark = row.remarks?.[columnKey];
-    const description = [
-        formLabel(data, row.form),
-        translate(data, "names", row.name) ?? row.name,
-    ]
-        .filter(Boolean)
-        .join(", ");
-    const original = [conditions, remark].filter(Boolean).join("; ");
-    const requirements = [conditions, remark]
-        .filter(Boolean)
-        .map((text) => translate(data, "conditions", text) ?? text)
-        .join("; ");
-    const notes = noteRefs(row.name, alternate, remark)
-        .filter((n) => data.notes?.[n])
-        .map((n) => `Note ${n}♠: ${data.notes[n]}`);
-
-    return [
-        `Materiał wg rysunku: ${row.spec}${description ? ` – ${description}` : ""}`,
-        `Proponowany zamiennik: ${material}`,
-        `Wymagania dla zamiennika: ${requirements || "brak dodatkowych wymagań w karcie"}`,
-        ...(requirements !== original ? [`(oryginał w karcie: ${original})`] : []),
-        ...notes,
-        data.requestFooter ?? `Podstawa: ${data.document} rev. ${data.revision}.`,
-    ].join("\n");
-}

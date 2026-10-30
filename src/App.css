@@ -624,10 +624,6 @@ kbd {
 }
 
 .alt-item {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
     padding: 6px 0;
     border-bottom: 1px solid var(--border);
 }
