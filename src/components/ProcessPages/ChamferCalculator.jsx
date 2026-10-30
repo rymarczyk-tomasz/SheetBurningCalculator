@@ -78,7 +78,7 @@ export default function ChamferCalculator({ resultLabel, getMultiplier }) {
             <ShapeSelector shape={shape} setShape={setShape} />
             <ShapeDimensionFields shape={shape} dims={dims} setDim={setDim} />
             <InputField
-                label="Wielkość fazy (mm):"
+                label="Wielkość fazy na stronę (mm):"
                 value={chamferSize}
                 onChange={setChamferSize}
                 placeholder="Wpisz wielkość fazy w mm"
