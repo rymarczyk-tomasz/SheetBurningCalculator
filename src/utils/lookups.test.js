@@ -67,8 +67,23 @@ describe("tabela masa x grubość", () => {
         expect(lookupMassThickness(table, 90, 20)).toBe(1.5);
     });
 
-    it("zwraca null dla pustej komórki", () => {
+    it("zwraca null dla pustej komórki na brzegu tabeli", () => {
         expect(lookupMassThickness(table, 90, 50)).toBeNull();
+    });
+
+    it("uzupełnia pustą komórkę między wartościami kolumny", () => {
+        const gapTable = parseMassThicknessTable([
+            ["Masa", "300", "350"],
+            ["140", "4.1", "4.4"],
+            ["180", "4.7", ""],
+            ["200", "4.9", ""],
+            ["250", "5.4", ""],
+            ["300", "5.9", "6.3"],
+        ]);
+
+        expect(lookupMassThickness(gapTable, 180, 350)).toBe(4.9);
+        expect(lookupMassThickness(gapTable, 200, 350)).toBe(5.1);
+        expect(lookupMassThickness(gapTable, 250, 350)).toBe(5.7);
     });
 });
 
