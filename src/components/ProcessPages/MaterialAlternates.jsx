@@ -1,13 +1,11 @@
 import { useId, useMemo, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import CopyButton from "../CopyButton";
 import useKeyShortcuts from "../../hooks/useKeyShortcuts";
 import {
     COLUMNS,
     findAlternates,
     formLabel,
     parseAlternatesData,
-    requestText,
     rowNoteRefs,
     splitAlternate,
     translate,
@@ -45,33 +43,25 @@ Translated.propTypes = {
     className: PropTypes.string,
 };
 
-function AlternateItem({ data, row, columnKey, alternate }) {
+function AlternateItem({ data, alternate }) {
     const { material, conditions } = splitAlternate(alternate);
     return (
         <li className="alt-item">
-            <div>
-                <p className="alt-material">{material}</p>
-                {conditions && (
-                    <Translated
-                        data={data}
-                        group="conditions"
-                        text={conditions}
-                        className="alt-conditions"
-                    />
-                )}
-            </div>
-            <CopyButton
-                text={requestText(data, row, columnKey, alternate)}
-                label={`Kopiuj opis do wniosku: ${material}`}
-            />
+            <p className="alt-material">{material}</p>
+            {conditions && (
+                <Translated
+                    data={data}
+                    group="conditions"
+                    text={conditions}
+                    className="alt-conditions"
+                />
+            )}
         </li>
     );
 }
 
 AlternateItem.propTypes = {
     data: PropTypes.object.isRequired,
-    row: PropTypes.object.isRequired,
-    columnKey: PropTypes.string.isRequired,
     alternate: PropTypes.string.isRequired,
 };
 
@@ -106,13 +96,7 @@ function AlternateRow({ data, row }) {
                         <h4>{label}</h4>
                         <ul>
                             {(row[key] ?? []).map((alternate) => (
-                                <AlternateItem
-                                    key={alternate}
-                                    data={data}
-                                    row={row}
-                                    columnKey={key}
-                                    alternate={alternate}
-                                />
+                                <AlternateItem key={alternate} data={data} alternate={alternate} />
                             ))}
                         </ul>
                         {row.remarks?.[key] && (

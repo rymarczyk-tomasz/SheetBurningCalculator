@@ -6,9 +6,9 @@ import {
     noteRefs,
     normalizeMaterial,
     parseAlternatesData,
-    requestText,
     rowNoteRefs,
     splitAlternate,
+    translate,
 } from "./materialAlternates";
 
 // Dane testowe są zmyślone — prawdziwa karta nie może trafić do repozytorium
@@ -17,7 +17,6 @@ const data = {
     document: "TEST1",
     revision: "A",
     notes: { 3: "Opis notatki 3." },
-    requestFooter: "Podstawa: TEST1 rev. A.",
     table1: [
         {
             spec: "X1A2A, A2, C7",
@@ -128,38 +127,17 @@ describe("notatki ♠", () => {
     });
 });
 
-describe("requestText", () => {
-    it("zawiera materiał, zamiennik, wymagania z uwagą kolumny i treść notatki", () => {
-        const row = data.table1[0];
-        const text = requestText(data, row, "american", row.american[0]);
-        expect(text).toContain("Materiał wg rysunku: X1A2A, A2, C7 – Bar, Carbon Steel");
-        expect(text).toContain("Proponowany zamiennik: ASTM Z36");
-        expect(text).toContain('Wymagania dla zamiennika: Note 3♠, normalize > 9"; All Note 3♠');
-        expect(text).toContain("Note 3♠: Opis notatki 3.");
-        expect(text).toContain("Podstawa: TEST1 rev. A.");
+describe("tłumaczenia", () => {
+    const translated = { ...data, pl: { forms: { Bar: "Pręt" } } };
+
+    it("zwraca tłumaczenie ze słownika albo null", () => {
+        expect(translate(translated, "forms", "Bar")).toBe("Pręt");
+        expect(translate(translated, "forms", "Plate")).toBeNull();
+        expect(translate(data, "forms", "Bar")).toBeNull();
     });
 
-    it("tłumaczy postać, opis i warunki, zostawiając oryginał warunków", () => {
-        const translated = {
-            ...data,
-            pl: {
-                forms: { Bar: "Pręt" },
-                names: { "Carbon Steel": "Stal węglowa" },
-                conditions: { "YS > 99 ksi": "Re > 99 ksi" },
-            },
-        };
-        const row = data.table1[0];
-        const text = requestText(translated, row, "asian", row.asian[0]);
-        expect(text).toContain("X1A2A, A2, C7 – Pręt (Bar), Stal węglowa");
-        expect(text).toContain("Wymagania dla zamiennika: Re > 99 ksi");
-        expect(text).toContain("(oryginał w karcie: YS > 99 ksi)");
+    it("pokazuje postać wyrobu po polsku z oryginałem w nawiasie", () => {
+        expect(formLabel(translated, "Bar")).toBe("Pręt (Bar)");
         expect(formLabel(translated, "Plate")).toBe("Plate");
-    });
-
-    it("bez warunków informuje o braku dodatkowych wymagań", () => {
-        const row = data.table1[1];
-        expect(requestText(data, row, "european", row.european[0])).toContain(
-            "brak dodatkowych wymagań",
-        );
     });
 });
