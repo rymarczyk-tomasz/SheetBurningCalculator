@@ -1,3 +1,4 @@
+import { interpolate } from "./interpolate";
 import { parseNumber } from "./parseNumber";
 
 /**
@@ -31,7 +32,25 @@ export function parseMassThicknessTable(rows) {
 }
 
 /**
- * Zwraca czas dla najbliższej masy i grubości w tabeli lub null, gdy brak wartości.
+ * Czas dla pustej komórki leżącej między wartościami tej samej kolumny grubości:
+ * interpolacja po masie, zaokrąglona do 0,1 h jak w tabeli.
+ * Null dla pustych komórek na brzegu tabeli (wartości tylko z jednej strony).
+ */
+function fillColumnGap(data, massIdx, thicknessIdx) {
+    const { mass } = data[massIdx];
+    const column = data
+        .map((row) => ({ x: row.mass, y: row.times[thicknessIdx] }))
+        .filter((p) => p.y != null);
+
+    if (!column.some((p) => p.x < mass) || !column.some((p) => p.x > mass)) {
+        return null;
+    }
+    return Number(interpolate(column, mass).toFixed(1));
+}
+
+/**
+ * Zwraca czas dla najbliższej masy i grubości w tabeli. Pustą komórkę między
+ * wartościami kolumny uzupełnia interpolacją; null, gdy nie ma z czego jej wyznaczyć.
  */
 export function lookupMassThickness({ thicknesses, data }, mass, thickness) {
     if (!data.length) return null;
@@ -40,5 +59,8 @@ export function lookupMassThickness({ thicknesses, data }, mass, thickness) {
         mass,
     );
     const thicknessIdx = findClosest(thicknesses, thickness);
-    return data[massIdx].times[thicknessIdx] ?? null;
+    return (
+        data[massIdx].times[thicknessIdx] ??
+        fillColumnGap(data, massIdx, thicknessIdx)
+    );
 }
