@@ -6,6 +6,7 @@ import {
     findAlternates,
     formLabel,
     parseAlternatesData,
+    PRIMARY_COLUMN,
     rowNoteRefs,
     splitAlternate,
     translate,
@@ -70,6 +71,7 @@ function AlternateRow({ data, row }) {
     const columns = COLUMNS.filter(
         ({ key }) => row[key]?.length > 0 || row.remarks?.[key],
     );
+    const hasPrimary = columns.some(({ key }) => key === PRIMARY_COLUMN);
 
     return (
         <section className="alt-row">
@@ -91,8 +93,14 @@ function AlternateRow({ data, row }) {
                 </p>
             )}
             <div className="alt-columns">
+                {!hasPrimary && (
+                    <p className="alt-no-primary">Brak zamiennika europejskiego w tym wierszu</p>
+                )}
                 {columns.map(({ key, label }) => (
-                    <div key={key} className="alt-column">
+                    <div
+                        key={key}
+                        className={`alt-column${key === PRIMARY_COLUMN ? " alt-column--primary" : ""}`}
+                    >
                         <h4>{label}</h4>
                         <ul>
                             {(row[key] ?? []).map((alternate) => (
