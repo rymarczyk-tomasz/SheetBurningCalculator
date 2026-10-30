@@ -55,8 +55,9 @@ const STATUS_TEXT = {
 
 /**
  * Ikona kopiowania o stałym rozmiarze; stan ("Skopiowano") jest ogłaszany czytnikom ekranu.
+ * Dla długich tekstów warto podać label, zamiast odczytywać cały tekst w aria-label.
  */
-export default function CopyButton({ text }) {
+export default function CopyButton({ text, label }) {
     const [status, setStatus] = useState(null);
 
     useEffect(() => {
@@ -83,8 +84,8 @@ export default function CopyButton({ text }) {
                 type="button"
                 className={`copy-btn${status ? ` copy-btn--${status}` : ""}`}
                 onClick={handleCopy}
-                title={status ? STATUS_TEXT[status] : "Kopiuj wartość"}
-                aria-label={`Kopiuj: ${text}`}
+                title={status ? STATUS_TEXT[status] : (label ?? "Kopiuj wartość")}
+                aria-label={label ?? `Kopiuj: ${text}`}
             >
                 {icon}
             </button>
@@ -97,4 +98,5 @@ export default function CopyButton({ text }) {
 
 CopyButton.propTypes = {
     text: PropTypes.string.isRequired,
+    label: PropTypes.string,
 };

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Dane poufne (np. karta GE D50A152) — nie mogą trafić do repozytorium
+D50A152*.json
