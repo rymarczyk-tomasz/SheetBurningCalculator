@@ -769,3 +769,21 @@ kbd {
     border-radius: 4px;
     user-select: all;
 }
+
+.alt-column--primary {
+    grid-column: 1 / -1;
+    padding: 12px 14px;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-sm);
+}
+
+.alt-column--primary h4 {
+    color: var(--accent);
+}
+
+.alt-no-primary {
+    grid-column: 1 / -1;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}

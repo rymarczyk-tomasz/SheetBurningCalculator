@@ -7,9 +7,12 @@ import { UserError } from "./errors";
  */
 export const DATA_FORMAT = "d50a152-v1";
 
+// Zamienniki europejskie są najczęściej używane, dlatego idą pierwsze i są wyróżnione
+export const PRIMARY_COLUMN = "european";
+
 export const COLUMNS = [
-    { key: "asian", label: "Asian" },
     { key: "european", label: "European & Canadian" },
+    { key: "asian", label: "Asian" },
     { key: "american", label: "GE Vernova & American" },
 ];
 
